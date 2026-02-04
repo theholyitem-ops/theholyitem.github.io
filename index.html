@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Planner Nazareth</title>
+    <title>Planner Nazareth - The Holy Item</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
@@ -19,13 +19,14 @@
         .day-card:hover { background-color: #f9f9f9; }
         .today { background: #333; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
         .has-content::after { content: ''; position: absolute; bottom: 6px; width: 6px; height: 6px; background: #8a817c; border-radius: 50%; }
-        .wellness-icon { cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; opacity: 0.3; }
-        .wellness-icon.active { opacity: 1; transform: scale(1.1); }
+        .wellness-icon { cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; }
+        .wellness-icon.inactive { opacity: 0.3; grayscale: 100%; }
+        .custom-checkbox { accent-color: #333; transform: scale(1.2); cursor: pointer; }
+        
         @media (max-width: 768px) {
             .main-container { flex-direction: column-reverse; height: 100vh; }
             .sidebar { width: 100%; height: auto; flex-direction: row; padding: 10px; border-top: 1px solid #333; overflow-x: auto; }
             .sidebar-item { width: auto; padding: 10px 12px; min-width: 65px; }
-            .header-month { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
     </style>
 </head>
@@ -39,7 +40,7 @@
                 <div onclick="showTab('mes')" id="nav-mes" class="sidebar-item active-tab"><span class="text-xl">📅</span><span class="text-[8px] font-bold mt-1">MES</span></div>
                 <div onclick="showTab('dia')" id="nav-dia" class="sidebar-item"><span class="text-xl">📝</span><span class="text-[8px] font-bold mt-1">DÍA</span></div>
                 <div onclick="showTab('luces')" id="nav-luces" class="sidebar-item"><span class="text-xl">✨</span><span class="text-[8px] font-bold mt-1">LUCES</span></div>
-                <div onclick="showTab('oracion')" id="nav-oracion" class="sidebar-item"><span class="text-xl">🙏</span><span class="text-[8px] font-bold mt-1">ORACIÓN</span></div>
+                <div onclick="showTab('oracion')" id="nav-oracion" class="sidebar-item"><span class="text-xl">🙏</span><span class="text-[8px] font-bold mt-1">DIARIO</span></div>
                 <div onclick="showTab('bienestar')" id="nav-bienestar" class="sidebar-item"><span class="text-xl">🌿</span><span class="text-[8px] font-bold mt-1">BIEN</span></div>
                 <div onclick="showTab('nazareth')" id="nav-nazareth" class="sidebar-item"><span class="text-xl">🏠</span><span class="text-[8px] font-bold mt-1">CASA</span></div>
                 <div onclick="showTab('pendientes')" id="nav-pendientes" class="sidebar-item"><span class="text-xl">📋</span><span class="text-[8px] font-bold mt-1">TODO</span></div>
@@ -57,6 +58,7 @@
         let selectedDate = new Date();
         const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         
+        // --- 104 FRASES SEMANALES ---
         const weeklyQuotes = [
             "\"Dios se da a nosotros en la medida en que nosotros esperamos en Él.\" – Jacques Philippe",
             "\"La medida del amor es amar sin medida.\" – San Agustín",
@@ -165,11 +167,9 @@
         ];
 
         function getQuote(date) {
-            // Fecha base para el ciclo (1 de Enero 2025)
             const baseDate = new Date(2025, 0, 1);
             const diff = date - baseDate;
             const weekIndex = Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
-            // Ciclo de 104 semanas
             const index = Math.abs(weekIndex) % 104;
             return weeklyQuotes[index] || weeklyQuotes[0];
         }
@@ -181,7 +181,8 @@
             return data ? JSON.parse(data) : { 
                 tasks: "", events: "", luces: "", 
                 examen: ["", "", "", "", ""], 
-                wellness: { sleep: false, water: false, mobility: false, nature: false },
+                wellness: { sleep: 0, water: 0, mobility: 0, nature: 0 },
+                prayer: { checks: [], message: "" },
                 nazareth: { hogar: "", trabajo: "", ofreciendoHogar: "", ofreciendoTrabajo: "" }
             };
         }
@@ -200,17 +201,18 @@
 
             if (tab === 'mes') renderMonthView(container);
             else if (tab === 'dia') renderDayView(container);
-            else if (tab === 'luces') renderLucesView(container);
-            else if (tab === 'oracion') renderOracionView(container);
-            else if (tab === 'bienestar') renderWellnessView(container);
+            else if (tab === 'luces') renderLucesGallery(container);
+            else if (tab === 'oracion') renderSpiritualDiary(container);
+            else if (tab === 'bienestar') renderWellnessGlobal(container);
             else if (tab === 'nazareth') renderNazarethView(container);
             else if (tab === 'pendientes') renderPendientesView(container);
         }
 
+        // --- VISTA MENSUAL ---
         function renderMonthView(container) {
             const monthName = months[viewDate.getMonth()];
             container.innerHTML = `
-                <div class="flex justify-between items-center mb-8 header-month">
+                <div class="flex justify-between items-center mb-8">
                     <div class="flex items-baseline gap-4">
                         <h2 class="text-4xl text-stone-800">${monthName} <span class="text-stone-300">${viewDate.getFullYear()}</span></h2>
                         <span class="hidden lg:block text-[10px] text-stone-400 italic font-serif max-w-sm border-l border-stone-200 pl-4 leading-relaxed">
@@ -231,6 +233,23 @@
             `;
         }
 
+        function generateCalendarHtml() {
+            const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
+            const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
+            const today = new Date();
+            let html = '';
+            for (let i = 0; i < firstDay; i++) html += '<div class="day-card border-none"></div>';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const cur = new Date(viewDate.getFullYear(), viewDate.getMonth(), i);
+                const isToday = cur.toDateString() === today.toDateString();
+                const dData = getDayData(cur);
+                const hasContent = dData.tasks || dData.luces || dData.prayer.message;
+                html += `<div onclick="selectDate(${viewDate.getFullYear()}, ${viewDate.getMonth()}, ${i})" class="day-card ${hasContent ? 'has-content' : ''}"><span class="${isToday ? 'today' : 'text-stone-600'}">${i}</span></div>`;
+            }
+            return html;
+        }
+
+        // --- VISTA DIARIA (Fusión de V1 y V2) ---
         function renderDayView(container) {
             const data = getDayData(selectedDate);
             const dateStr = `${selectedDate.getDate()} de ${months[selectedDate.getMonth()]}`;
@@ -248,46 +267,39 @@
                     <div class="space-y-6">
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
                             <h3 class="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Pendientes</h3>
-                            <textarea oninput="updateField('tasks', this.value)" class="h-32 text-stone-600" placeholder="- Escribe...">${data.tasks}</textarea>
+                            <textarea oninput="updateField('tasks', this.value)" class="h-32 text-stone-600" placeholder="- Escribe tus tareas...">${data.tasks}</textarea>
                         </div>
-                        <div class="bg-blue-50/30 p-6 rounded-3xl border border-blue-100">
-                            <h3 class="text-[10px] font-bold text-blue-400 tracking-widest uppercase mb-4 flex justify-between">📅 Horarios</h3>
-                            <textarea oninput="updateField('events', this.value)" class="h-32 text-stone-600" placeholder="10:00 - Reunión...">${data.events || ''}</textarea>
+                        
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
+                            <h3 class="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-6">Bienestar</h3>
+                            <div class="space-y-4">
+                                ${renderWellnessRow('sleep', '🌙', 'SUEÑO (1HR)', 8, data.wellness.sleep, 'text-indigo-400')}
+                                ${renderWellnessRow('water', '💧', 'HIDRATACIÓN (VASO)', 8, data.wellness.water, 'text-blue-400')}
+                                ${renderWellnessRow('mobility', '🦶', 'CUERPO (20m)', 3, data.wellness.mobility, 'text-orange-400')}
+                                ${renderWellnessRow('nature', '🌿', 'AIRE (10m)', 3, data.wellness.nature, 'text-green-500')}
+                            </div>
+                        </div>
+
+                        <div class="bg-stone-800 p-6 rounded-3xl text-white">
+                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-4">Vida de Oración</h3>
+                            <div class="grid grid-cols-1 gap-2 text-xs mb-4">
+                                ${renderPrayerChecks(data.prayer.checks)}
+                            </div>
+                            <p class="text-[10px] font-bold text-stone-400 uppercase mb-2">¿Qué me dijo Dios hoy?</p>
+                            <textarea oninput="updatePrayerMsg(this.value)" class="bg-stone-700/50 p-3 rounded-xl h-20 text-xs text-stone-200" placeholder="Guárdalo en el corazón...">${data.prayer.message}</textarea>
                         </div>
                     </div>
 
                     <div class="space-y-6">
-                        <div class="bg-[#fffbf0] p-6 rounded-3xl shadow-sm border border-stone-100">
-                            <h3 class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase mb-2">Luces del Día ✨</h3>
-                            <textarea oninput="updateField('luces', this.value)" class="h-16 italic text-stone-700 text-sm" placeholder="Milagro del día...">${data.luces}</textarea>
+                        <div class="bg-[#fffbf0] p-6 rounded-3xl border border-stone-100">
+                            <h3 class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase mb-2">Luz del Día ✨</h3>
+                            <textarea oninput="updateField('luces', this.value)" class="h-16 italic text-stone-700 text-sm" placeholder="Un pequeño milagro...">${data.luces}</textarea>
                         </div>
 
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                            <h3 class="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Examen de Conciencia</h3>
-                            <div class="space-y-3">
-                                ${data.examen.map((val, i) => `
-                                    <div class="flex gap-3 border-b border-stone-50 pb-1">
-                                        <span class="text-stone-300 text-[10px] pt-1">${i+1}</span>
-                                        <input type="text" value="${val}" oninput="updateExamen(${i}, this.value)" class="text-xs text-stone-600">
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="bg-stone-50 p-5 rounded-3xl">
-                            <div class="grid grid-cols-4 gap-2">
-                                <div onclick="toggleWellness('sleep')" class="wellness-icon ${data.wellness.sleep ? 'active' : ''}">
-                                    <span class="text-xl">🌙</span><span class="text-[7px] font-bold mt-1 uppercase">Sueño</span>
-                                </div>
-                                <div onclick="toggleWellness('water')" class="wellness-icon ${data.wellness.water ? 'active' : ''}">
-                                    <span class="text-xl">💧</span><span class="text-[7px] font-bold mt-1 uppercase">Agua</span>
-                                </div>
-                                <div onclick="toggleWellness('mobility')" class="wellness-icon ${data.wellness.mobility ? 'active' : ''}">
-                                    <span class="text-xl">🧘</span><span class="text-[7px] font-bold mt-1 uppercase">Cuerpo</span>
-                                </div>
-                                <div onclick="toggleWellness('nature')" class="wellness-icon ${data.wellness.nature ? 'active' : ''}">
-                                    <span class="text-xl">🍃</span><span class="text-[7px] font-bold mt-1 uppercase">Aire</span>
-                                </div>
+                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-4">Examen de Conciencia</h3>
+                            <div class="space-y-4">
+                                ${renderExamenInputs(data.examen)}
                             </div>
                         </div>
                     </div>
@@ -295,19 +307,120 @@
             `;
         }
 
-        window.updateField = (f, v) => { const d = getDayData(selectedDate); d[f] = v; saveDayData(selectedDate, d); };
-        window.updateExamen = (i, v) => { const d = getDayData(selectedDate); d.examen[i] = v; saveDayData(selectedDate, d); };
-        window.toggleWellness = (k) => { const d = getDayData(selectedDate); d.wellness[k] = !d.wellness[k]; saveDayData(selectedDate, d); renderDayView(document.getElementById('view-container')); };
+        // --- RENDERIZADORES DE COMPONENTES ---
+        function renderWellnessRow(type, icon, label, max, current, color) {
+            let dots = '';
+            for(let i=1; i<=max; i++) {
+                dots += `<div onclick="updateWellness('${type}', ${i})" class="wellness-icon ${i > current ? 'inactive' : ''} cursor-pointer text-xl ${i <= current ? color : 'text-stone-200'}">${icon}</div>`;
+            }
+            return `<div><p class="text-[8px] font-bold text-stone-400 mb-1">${label}</p><div class="flex gap-1">${dots}</div></div>`;
+        }
 
+        function renderExamenInputs(values) {
+            const qs = [
+                "¿Qué es lo que más agradezco de hoy?",
+                "¿En qué situaciones vi a Dios el día de hoy?",
+                "¿Qué emoción predominó hoy? (Háblalo con Dios)",
+                "¿Desde qué lugar interior me gustaría vivir mañana?",
+                "¿En qué momentos me quedé corta en amor?"
+            ];
+            return qs.map((q, i) => `
+                <div>
+                    <label class="block text-[9px] font-bold text-stone-400 mb-1 leading-tight">${q}</label>
+                    <input type="text" value="${values[i]}" oninput="updateExamen(${i}, this.value)" class="border-b border-stone-100 py-1 text-xs text-stone-600" placeholder="Escribe aquí...">
+                </div>
+            `).join('');
+        }
+
+        function renderPrayerChecks(checked) {
+            const opts = ["Meditación de la palabra", "Contemplación en el santísimo", "Contemplación en la naturaleza", "Lectura espiritual", "Oración de repetición"];
+            return opts.map(opt => `
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="custom-checkbox" ${checked.includes(opt) ? 'checked' : ''} onchange="togglePrayerCheck('${opt}')">
+                    <span>${opt}</span>
+                </label>
+            `).join('');
+        }
+
+        // --- LOGICA DE BIENESTAR (SCORECARD) ---
+        function renderWellnessGlobal(container) {
+            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-'));
+            let totals = { sleep: 0, water: 0, mobility: 0, nature: 0 };
+            let count = allKeys.length || 1;
+            const max = { sleep: 8, water: 8, mobility: 3, nature: 3 };
+
+            allKeys.forEach(k => {
+                const d = JSON.parse(localStorage.getItem(k));
+                if(d.wellness) {
+                    totals.sleep += d.wellness.sleep;
+                    totals.water += d.wellness.water;
+                    totals.mobility += d.wellness.mobility;
+                    totals.nature += d.wellness.nature;
+                }
+            });
+
+            const scores = {
+                sleep: Math.round((totals.sleep / (count * max.sleep)) * 100) || 0,
+                water: Math.round((totals.water / (count * max.water)) * 100) || 0,
+                mobility: Math.round((totals.mobility / (count * max.mobility)) * 100) || 0,
+                nature: Math.round((totals.nature / (count * max.nature)) * 100) || 0
+            };
+
+            container.innerHTML = `
+                <h2 class="text-4xl text-stone-800 mb-6 italic">Mi Bienestar 🌿</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    ${renderScoreCard('Sueño', scores.sleep, '🌙', "Prioriza tu descanso esta semana.")}
+                    ${renderScoreCard('Hidratación', scores.water, '💧', "Lleva tu termo de agua contigo.")}
+                    ${renderScoreCard('Movilidad', scores.mobility, '🦶', "Camina 10 min cada 4 horas.")}
+                    ${renderScoreCard('Naturaleza', scores.nature, '🌿', "Admira conscientemente la creación.")}
+                </div>
+            `;
+        }
+
+        function renderScoreCard(title, score, icon, feedback) {
+            return `
+                <div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-stone-400 uppercase">${icon} ${title}</span>
+                        <span class="text-xl font-bold">${score}%</span>
+                    </div>
+                    <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden mb-4">
+                        <div class="bg-stone-800 h-full" style="width: ${score}%"></div>
+                    </div>
+                    <p class="text-[10px] italic text-stone-500">${score < 60 ? feedback : '¡Vas muy bien! Mantén el ritmo.'}</p>
+                </div>
+            `;
+        }
+
+        // --- GALERÍAS E HISTORIAL ---
+        function renderLucesGallery(container) {
+            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-')).sort().reverse();
+            container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Mis Luces ✨</h2><div class="columns-1 md:columns-2 gap-4" id="luces-grid"></div>`;
+            const grid = document.getElementById('luces-grid');
+            allKeys.forEach(k => {
+                const d = JSON.parse(localStorage.getItem(k));
+                if(d.luces) grid.innerHTML += `<div class="bg-[#fffbf0] p-6 rounded-3xl border border-yellow-100 italic mb-4 text-sm text-stone-700">"${d.luces}" <span class="block text-[8px] mt-2 font-bold opacity-30 uppercase">${k.replace('day-', '')}</span></div>`;
+            });
+        }
+
+        function renderSpiritualDiary(container) {
+            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-')).sort().reverse();
+            container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Diario Espiritual 🙏</h2><div class="space-y-4"></div>`;
+            const list = container.querySelector('div');
+            allKeys.forEach(k => {
+                const d = JSON.parse(localStorage.getItem(k));
+                if(d.prayer.message) list.innerHTML += `<div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><p class="text-[9px] font-bold text-stone-300 uppercase mb-2">${k.replace('day-', '')}</p><p class="text-sm text-stone-700 italic">"Lo que Dios me dijo: ${d.prayer.message}"</p></div>`;
+            });
+        }
+
+        // --- VISTA NAZARETH (De V1) ---
         function renderNazarethView(container) {
             const data = getDayData(selectedDate).nazareth;
             container.innerHTML = `
                 <div class="max-w-2xl mx-auto space-y-8">
                     <div class="text-center space-y-4">
                         <h2 class="text-4xl text-stone-800 italic">Mi Nazareth</h2>
-                        <p class="text-[11px] text-stone-500 uppercase tracking-widest px-8 leading-relaxed italic">
-                            “Lavar un plato no porque ames lavarlo, sino porque amas a la persona que lo usará después.”
-                        </p>
+                        <p class="text-[11px] text-stone-500 uppercase tracking-widest px-8 leading-relaxed italic">“Lavar un plato no porque ames lavarlo, sino porque amas a la persona que lo usará después.”</p>
                     </div>
                     <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-stone-100 space-y-6">
                         <div>
@@ -321,38 +434,27 @@
                             <input oninput="updateNazareth('ofreciendoTrabajo', this.value)" type="text" class="mt-2 italic text-xs text-stone-400 px-2" placeholder="¿Por quién lo ofrezco?" value="${data.ofreciendoTrabajo}">
                         </div>
                     </div>
-                    <div class="bg-[#1a1a1a] p-8 rounded-[2rem] text-white text-center">
-                        <h3 class="font-serif italic mb-4">Oración a la Sagrada Familia</h3>
-                        <p class="text-[10px] leading-relaxed opacity-60 font-light">
-                            Jesús, María y José, en vosotros contemplamos el esplendor del verdadero amor. Haz que nuestras casas sean escuelas del Evangelio y pequeñas iglesias domésticas. Amén.
-                        </p>
-                    </div>
                 </div>`;
         }
 
+        // --- FUNCIONES DE ACTUALIZACIÓN ---
+        window.updateField = (f, v) => { const d = getDayData(selectedDate); d[f] = v; saveDayData(selectedDate, d); };
+        window.updateExamen = (i, v) => { const d = getDayData(selectedDate); d.examen[i] = v; saveDayData(selectedDate, d); };
+        window.updateWellness = (type, val) => { const d = getDayData(selectedDate); d.wellness[type] = (d.wellness[type] === val ? 0 : val); saveDayData(selectedDate, d); renderDayView(document.getElementById('view-container')); };
+        window.togglePrayerCheck = (opt) => { const d = getDayData(selectedDate); const idx = d.prayer.checks.indexOf(opt); if(idx > -1) d.prayer.checks.splice(idx, 1); else d.prayer.checks.push(opt); saveDayData(selectedDate, d); };
+        window.updatePrayerMsg = (v) => { const d = getDayData(selectedDate); d.prayer.message = v; saveDayData(selectedDate, d); };
         window.updateNazareth = (f, v) => { const d = getDayData(selectedDate); d.nazareth[f] = v; saveDayData(selectedDate, d); };
+        window.changeMonth = (o) => { viewDate.setMonth(viewDate.getMonth() + o); showTab('mes'); };
+        window.selectDate = (y, m, d) => { selectedDate = new Date(y, m, d); showTab('dia'); };
 
-        function generateCalendarHtml() {
-            const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
-            const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
-            const today = new Date();
-            let html = '';
-            for (let i = 0; i < firstDay; i++) html += '<div class="day-card border-none"></div>';
-            for (let i = 1; i <= daysInMonth; i++) {
-                const cur = new Date(viewDate.getFullYear(), viewDate.getMonth(), i);
-                const isToday = cur.toDateString() === today.toDateString();
-                const hasData = getDayData(cur).tasks || getDayData(cur).luces;
-                html += `<div onclick="selectDate(${viewDate.getFullYear()}, ${viewDate.getMonth()}, ${i})" class="day-card ${hasData ? 'has-content' : ''}"><span class="${isToday ? 'today' : 'text-stone-600'}">${i}</span></div>`;
-            }
-            return html;
+        function renderPendientesView(container) {
+            container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Todos los Pendientes</h2><div class="space-y-4" id="todo-list"></div>`;
+            const list = document.getElementById('todo-list');
+            Object.keys(localStorage).filter(k => k.startsWith('day-')).forEach(k => {
+                const d = JSON.parse(localStorage.getItem(k));
+                if (d.tasks) list.innerHTML += `<div class="bg-white p-4 rounded-2xl border border-stone-100"><p class="text-[9px] font-bold text-stone-300 mb-2 uppercase">${k.replace('day-', '')}</p><p class="text-xs text-stone-600 whitespace-pre-wrap">${d.tasks}</p></div>`;
+            });
         }
-
-        function renderOracionView(container) { container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic text-center">Tipos de Oración</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><h3 class="text-[10px] font-bold text-stone-400 mb-2 uppercase">Agradecimiento</h3><p class="text-xs text-stone-500 italic">"Gracias Padre por el regalo de este día..."</p></div><div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><h3 class="text-[10px] font-bold text-stone-400 mb-2 uppercase">Petición</h3><p class="text-xs text-stone-500 italic">"Señor, te pido hoy especialmente por..."</p></div><div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><h3 class="text-[10px] font-bold text-stone-400 mb-2 uppercase">Intercesión</h3><p class="text-xs text-stone-500 italic">"Madre, intercede ante tu hijo por..."</p></div></div>`; }
-        function renderWellnessView(container) { container.innerHTML = `<div class="text-center"><h2 class="text-4xl text-stone-800 mb-4 italic">Bienestar</h2><p class="text-stone-400 text-sm italic mb-10">"Cuida tu cuerpo para que tu alma tenga ganas de habitar en él."</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto"><div class="bg-white p-8 rounded-3xl border border-stone-100"><h3 class="text-xs font-bold text-stone-400 mb-4 uppercase tracking-tighter">Descanso</h3><p class="text-xs text-stone-500 leading-relaxed">Prioriza tus 7-8 horas de sueño para regenerar tu espíritu.</p></div><div class="bg-white p-8 rounded-3xl border border-stone-100"><h3 class="text-xs font-bold text-stone-400 mb-4 uppercase tracking-tighter">Cuerpo</h3><p class="text-xs text-stone-500 leading-relaxed">Movilidad, hidratación y contacto con la creación.</p></div></div></div>`; }
-        function renderLucesView(container) { container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Luces</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="luces-grid"></div>`; const grid = document.getElementById('luces-grid'); for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('day-')) { const d = JSON.parse(localStorage.getItem(k)); if (d.luces) grid.innerHTML += `<div class="bg-[#fffbf0] p-6 rounded-3xl border border-yellow-100 italic text-stone-700 text-sm">${d.luces} <span class="block text-[8px] mt-2 font-bold opacity-30 uppercase">${k.replace('day-', '')}</span></div>`; } } }
-        function renderPendientesView(container) { container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Pendientes</h2><div class="space-y-4" id="todo-list"></div>`; const list = document.getElementById('todo-list'); for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('day-')) { const d = JSON.parse(localStorage.getItem(k)); if (d.tasks) list.innerHTML += `<div class="bg-white p-4 rounded-2xl border border-stone-100"><p class="text-[9px] font-bold text-stone-300 mb-2 uppercase">${k.replace('day-', '')}</p><p class="text-xs text-stone-600 whitespace-pre-wrap">${d.tasks}</p></div>`; } } }
-        function changeMonth(o) { viewDate.setMonth(viewDate.getMonth() + o); showTab('mes'); }
-        function selectDate(y, m, d) { selectedDate = new Date(y, m, d); showTab('dia'); }
 
         showTab('mes');
     </script>
