@@ -3,61 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Holy Item - Digital Planner</title>
+    <title>Mi Planner Nazareth</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #e3e0db; color: #444; margin: 0; }
-        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
-        .sidebar-item { transition: all 0.2s; cursor: pointer; opacity: 0.6; display: flex; flex-direction: column; align-items: center; padding: 12px 0; width: 100%; }
+        body { font-family: 'Inter', sans-serif; background-color: #e3e0db; color: #444; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        .sidebar-item { transition: all 0.2s; cursor: pointer; opacity: 0.6; display: flex; flex-direction: column; align-items: center; padding: 12px 0; width: 100%; text-align: center; }
         .sidebar-item:hover { opacity: 1; background: rgba(255,255,255,0.05); }
         .active-tab { opacity: 1; background: rgba(255,255,255,0.1); border-radius: 12px; }
-        textarea, input { background: transparent; border: none; outline: none; width: 100%; resize: none; }
+        textarea, input[type="text"] { background: transparent; border: none; outline: none; width: 100%; resize: none; transition: 0.3s; }
+        textarea:focus, input[type="text"]:focus { background: rgba(0,0,0,0.02); border-radius: 8px; padding: 4px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-        .day-card { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 0.5px solid #f0f0f0; cursor: pointer; transition: 0.2s; position: relative; font-size: 0.8rem; }
-        .today { background: #333; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
-        .has-content::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background: #8a817c; border-radius: 50%; }
-        .offline-banner { display: none; background: #fee2e2; color: #991b1b; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; width: 100%; position: sticky; top: 0; z-index: 50; }
+        .day-card { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 0.5px solid #f0f0f0; cursor: pointer; transition: 0.2s; position: relative; }
+        .day-card:hover { background-color: #f9f9f9; }
+        .today { background: #333; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        .has-content::after { content: ''; position: absolute; bottom: 6px; width: 6px; height: 6px; background: #8a817c; border-radius: 50%; }
+        .wellness-icon { cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; opacity: 0.3; }
+        .wellness-icon.active { opacity: 1; transform: scale(1.1); }
         @media (max-width: 768px) {
-            .main-container { flex-direction: column; height: auto; }
-            .sidebar { width: 100%; height: auto; flex-direction: row; padding: 10px; overflow-x: auto; }
-            .sidebar-item { width: auto; padding: 10px 15px; }
-            .sidebar-item span:last-child { display: none; }
+            .main-container { flex-direction: column-reverse; height: 100vh; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; padding: 10px; border-top: 1px solid #333; overflow-x: auto; }
+            .sidebar-item { width: auto; padding: 10px 12px; min-width: 65px; }
+            .header-month { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-0 md:p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-2 md:p-4">
 
-    <div id="offline-msg" class="offline-banner">⚠️ No tienes conexión a internet. Los cambios no podrán ser guardados en la nube (solo localmente).</div>
-
-    <div class="w-full max-w-6xl bg-[#fcfcfc] md:rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row min-h-[90vh] overflow-hidden border border-stone-200 main-container">
+    <div class="w-full max-w-6xl bg-[#fcfcfc] rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row min-h-[85vh] overflow-hidden border border-stone-200 main-container">
         
-        <nav class="sidebar w-24 bg-[#1a1a1a] flex flex-col items-center py-6 justify-between text-white shrink-0">
-            <div class="flex flex-col md:flex-col items-center gap-2 md:gap-4 w-full px-2">
-                <div class="hidden md:flex w-14 h-14 bg-[#333] rounded-full items-center justify-center font-bold text-xs tracking-tighter border border-stone-600 mb-2">THI</div>
-                
-                <div onclick="showTab('mes')" id="nav-mes" class="sidebar-item active-tab"><span class="text-xl">📅</span><span class="text-[9px] font-bold mt-1">MES</span></div>
-                <div onclick="showTab('dia')" id="nav-dia" class="sidebar-item"><span class="text-xl">📝</span><span class="text-[9px] font-bold mt-1">DÍA</span></div>
-                <div onclick="showTab('pendientes')" id="nav-pendientes" class="sidebar-item"><span class="text-xl">📋</span><span class="text-[9px] font-bold mt-1">PENDIENTES</span></div>
-                <div onclick="showTab('nazareth')" id="nav-nazareth" class="sidebar-item"><span class="text-xl">🏠</span><span class="text-[9px] font-bold mt-1">NAZARETH</span></div>
-                <div onclick="showTab('luces')" id="nav-luces" class="sidebar-item"><span class="text-xl">✨</span><span class="text-[9px] font-bold mt-1">LUCES</span></div>
-                <div onclick="showTab('oracion')" id="nav-oracion" class="sidebar-item"><span class="text-xl">🙏</span><span class="text-[9px] font-bold mt-1">ORACIÓN</span></div>
-                <div onclick="showTab('bienestar')" id="nav-bienestar" class="sidebar-item"><span class="text-xl">🌿</span><span class="text-[9px] font-bold mt-1">BIENESTAR</span></div>
-                <div onclick="showTab('notas')" id="nav-notas" class="sidebar-item"><span class="text-xl">📖</span><span class="text-[9px] font-bold mt-1">NOTAS</span></div>
+        <nav class="w-full md:w-24 bg-[#1a1a1a] flex flex-row md:flex-col items-center py-4 md:py-6 justify-between text-white sidebar">
+            <div class="flex flex-row md:flex-col items-center gap-1 md:gap-4 w-full px-2">
+                <div class="hidden md:flex w-12 h-12 bg-[#333] rounded-full items-center justify-center font-bold text-xs border border-stone-600 mb-2 tracking-tighter">THI</div>
+                <div onclick="showTab('mes')" id="nav-mes" class="sidebar-item active-tab"><span class="text-xl">📅</span><span class="text-[8px] font-bold mt-1">MES</span></div>
+                <div onclick="showTab('dia')" id="nav-dia" class="sidebar-item"><span class="text-xl">📝</span><span class="text-[8px] font-bold mt-1">DÍA</span></div>
+                <div onclick="showTab('luces')" id="nav-luces" class="sidebar-item"><span class="text-xl">✨</span><span class="text-[8px] font-bold mt-1">LUCES</span></div>
+                <div onclick="showTab('oracion')" id="nav-oracion" class="sidebar-item"><span class="text-xl">🙏</span><span class="text-[8px] font-bold mt-1">ORACIÓN</span></div>
+                <div onclick="showTab('bienestar')" id="nav-bienestar" class="sidebar-item"><span class="text-xl">🌿</span><span class="text-[8px] font-bold mt-1">BIEN</span></div>
+                <div onclick="showTab('nazareth')" id="nav-nazareth" class="sidebar-item"><span class="text-xl">🏠</span><span class="text-[8px] font-bold mt-1">CASA</span></div>
+                <div onclick="showTab('pendientes')" id="nav-pendientes" class="sidebar-item"><span class="text-xl">📋</span><span class="text-[8px] font-bold mt-1">TODO</span></div>
             </div>
+            <a href="https://calendar.google.com" target="_blank" class="hidden md:block opacity-30 hover:opacity-100 transition-opacity mb-4"><span class="text-xl">🔗</span></a>
         </nav>
 
-        <main class="flex-1 p-4 md:p-10 overflow-y-auto bg-[#faf9f6]" id="main-scroll">
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#faf9f6]" id="main-scroll">
             <div id="view-container"></div>
         </main>
     </div>
 
-    <footer class="mt-4 pb-6 text-stone-500 text-[10px] tracking-[0.2em] uppercase text-center">
-        Digital Planner by <span class="font-bold">The Holy Item</span> ©
-    </footer>
-
     <script>
-        // --- BASE DE DATOS DE FRASES (104) ---
+        let viewDate = new Date();
+        let selectedDate = new Date();
+        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        
         const weeklyQuotes = [
             "\"Dios se da a nosotros en la medida en que nosotros esperamos en Él.\" – Jacques Philippe",
             "\"La medida del amor es amar sin medida.\" – San Agustín",
@@ -75,7 +74,7 @@
             "\"Dios ha escrito para cada uno de nosotros una historia única e irrepetible, pero nos ha dejado la libertad de escribir la conclusión.\" – San Carlo Acutis",
             "\"Si juzgas a la gente, no tienes tiempo para amarla.\" – Madre Teresa de Calcuta",
             "\"No existen límites para quien tiene fe en Dios.\" – Anónimo",
-            "\"Le haces un cumplido a Dios cuando le pides cosas grandes.\" – Santa Teresa de Ávila",
+            "\"Le haces un cumplido de Dios cuando le pides cosas grandes.\" – Santa Teresa de Ávila",
             "\"La fe es creer lo que no ves; la recompensa es ver lo que crees.\" – San Agustín",
             "\"La vida con Dios no es inmunidad frente a las dificultades, sino paz en medio de ellas.\" – C. S. Lewis",
             "\"No te inquietes por el mañana; Dios ya está allí esperándote.\" – Jacques Philippe",
@@ -126,7 +125,7 @@
             "\"Un hombre no puede ser más hombre que cuando está de rodillas ante Dios.\" – San Juan XXIII",
             "\"Dios se propone darnos lo que necesitamos, no lo que creemos necesitar ahora.\" – C. S. Lewis",
             "\"No importa lo que esté sucediendo en tu vida, Dios ya tiene algo perfecto para ti.\" – Anónimo",
-            "\"El futuro es tan brillante como las premesas de Dios.\" – William Carey",
+            "\"El futuro es tan brillante como las promesas de Dios.\" – William Carey",
             "\"No tengas miedo, confía en Dios.\" – Papa Francisco",
             "\"Quien a Dios tiene, nada le falta: solo Dios basta.\" – Santa Teresa de Ávila",
             "\"Dale a la gente una segunda oportunidad. Basta una persona buena para que haya esperanza.\" – Papa Francisco",
@@ -165,30 +164,26 @@
             "\"Tu vida es el mensaje que Dios envía al mundo; asegúrate de que sea hermoso.\" – Anónimo"
         ];
 
-        // --- LÓGICA DE FECHAS Y ESTADO ---
-        let viewDate = new Date();
-        let selectedDate = new Date();
-        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-
-        function updateOnlineStatus() {
-            document.getElementById('offline-msg').style.display = navigator.onLine ? 'none' : 'block';
+        function getQuote(date) {
+            // Fecha base para el ciclo (1 de Enero 2025)
+            const baseDate = new Date(2025, 0, 1);
+            const diff = date - baseDate;
+            const weekIndex = Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
+            // Ciclo de 104 semanas
+            const index = Math.abs(weekIndex) % 104;
+            return weeklyQuotes[index] || weeklyQuotes[0];
         }
 
-        function getWeekQuote(date) {
-            const start = new Date(2024, 0, 1);
-            const diff = date - start;
-            const weekNumber = Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
-            return weeklyQuotes[Math.abs(weekNumber) % weeklyQuotes.length];
-        }
-
-        // --- GESTIÓN DE DATOS ---
+        // --- MANEJO DE DATOS ---
         function getDayData(date) {
             const key = `day-${date.toISOString().split('T')[0]}`;
             const data = localStorage.getItem(key);
-            return data ? JSON.parse(data) : { tasks: "", events: [], luces: [], examen: ["","","","",""], wellness: { sleep: 0, water: 0, mobility: 0, nature: 0 }, prayer: { checks: [], message: "" }, nazareth: { hogar: "", trabajo: "", hogarOffer: "", trabajoOffer: "" } };
+            return data ? JSON.parse(data) : { 
+                tasks: "", events: "", luces: "", 
+                examen: ["", "", "", "", ""], 
+                wellness: { sleep: false, water: false, mobility: false, nature: false },
+                nazareth: { hogar: "", trabajo: "", ofreciendoHogar: "", ofreciendoTrabajo: "" }
+            };
         }
 
         function saveDayData(date, data) {
@@ -200,34 +195,34 @@
         function showTab(tab) {
             const container = document.getElementById('view-container');
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active-tab'));
-            const navEl = document.getElementById('nav-' + tab);
-            if(navEl) navEl.classList.add('active-tab');
+            document.getElementById('nav-' + tab).classList.add('active-tab');
+            document.getElementById('main-scroll').scrollTop = 0;
 
             if (tab === 'mes') renderMonthView(container);
             else if (tab === 'dia') renderDayView(container);
-            else if (tab === 'pendientes') renderGlobalPendientes(container);
-            else if (tab === 'nazareth') renderNazarethView(container);
             else if (tab === 'luces') renderLucesView(container);
-            else if (tab === 'oracion') renderPrayerGlobalView(container);
-            else if (tab === 'bienestar') renderWellnessGlobalView(container);
-            else renderNotesView(container);
-            
-            updateOnlineStatus();
+            else if (tab === 'oracion') renderOracionView(container);
+            else if (tab === 'bienestar') renderWellnessView(container);
+            else if (tab === 'nazareth') renderNazarethView(container);
+            else if (tab === 'pendientes') renderPendientesView(container);
         }
 
         function renderMonthView(container) {
             const monthName = months[viewDate.getMonth()];
             container.innerHTML = `
-                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <h2 class="text-3xl md:text-4xl text-stone-800">${monthName} <span class="text-stone-300">${viewDate.getFullYear()}</span></h2>
-                    <div class="flex gap-4 text-2xl text-stone-400">
-                        <button onclick="changeMonth(-1)">‹</button><button onclick="changeMonth(1)">›</button>
+                <div class="flex justify-between items-center mb-8 header-month">
+                    <div class="flex items-baseline gap-4">
+                        <h2 class="text-4xl text-stone-800">${monthName} <span class="text-stone-300">${viewDate.getFullYear()}</span></h2>
+                        <span class="hidden lg:block text-[10px] text-stone-400 italic font-serif max-w-sm border-l border-stone-200 pl-4 leading-relaxed">
+                            ${getQuote(viewDate)}
+                        </span>
+                    </div>
+                    <div class="flex gap-4 text-2xl text-stone-300">
+                        <button onclick="changeMonth(-1)" class="hover:text-stone-800">‹</button>
+                        <button onclick="changeMonth(1)" class="hover:text-stone-800">›</button>
                     </div>
                 </div>
-                <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-4 italic text-center border-y border-stone-100 py-2">
-                    Frase de la semana: ${getWeekQuote(viewDate)}
-                </p>
-                <div class="grid grid-cols-7 mb-2 text-[10px] font-bold text-stone-400 tracking-widest text-center">
+                <div class="grid grid-cols-7 mb-2 text-[10px] font-bold text-stone-300 tracking-widest text-center">
                     <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div>
                 </div>
                 <div class="calendar-grid bg-white rounded-2xl shadow-sm overflow-hidden border border-stone-100">
@@ -236,175 +231,128 @@
             `;
         }
 
+        function renderDayView(container) {
+            const data = getDayData(selectedDate);
+            const dateStr = `${selectedDate.getDate()} de ${months[selectedDate.getMonth()]}`;
+            
+            container.innerHTML = `
+                <div class="mb-6">
+                    <div class="flex items-center gap-4 mb-1">
+                        <button onclick="showTab('mes')" class="text-stone-200 hover:text-stone-800 text-xl">←</button>
+                        <h2 class="text-3xl text-stone-800 italic">${dateStr}</h2>
+                    </div>
+                    <p class="text-[10px] text-stone-400 italic font-serif ml-10">${getQuote(selectedDate)}</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
+                            <h3 class="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Pendientes</h3>
+                            <textarea oninput="updateField('tasks', this.value)" class="h-32 text-stone-600" placeholder="- Escribe...">${data.tasks}</textarea>
+                        </div>
+                        <div class="bg-blue-50/30 p-6 rounded-3xl border border-blue-100">
+                            <h3 class="text-[10px] font-bold text-blue-400 tracking-widest uppercase mb-4 flex justify-between">📅 Horarios</h3>
+                            <textarea oninput="updateField('events', this.value)" class="h-32 text-stone-600" placeholder="10:00 - Reunión...">${data.events || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-[#fffbf0] p-6 rounded-3xl shadow-sm border border-stone-100">
+                            <h3 class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase mb-2">Luces del Día ✨</h3>
+                            <textarea oninput="updateField('luces', this.value)" class="h-16 italic text-stone-700 text-sm" placeholder="Milagro del día...">${data.luces}</textarea>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
+                            <h3 class="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Examen de Conciencia</h3>
+                            <div class="space-y-3">
+                                ${data.examen.map((val, i) => `
+                                    <div class="flex gap-3 border-b border-stone-50 pb-1">
+                                        <span class="text-stone-300 text-[10px] pt-1">${i+1}</span>
+                                        <input type="text" value="${val}" oninput="updateExamen(${i}, this.value)" class="text-xs text-stone-600">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="bg-stone-50 p-5 rounded-3xl">
+                            <div class="grid grid-cols-4 gap-2">
+                                <div onclick="toggleWellness('sleep')" class="wellness-icon ${data.wellness.sleep ? 'active' : ''}">
+                                    <span class="text-xl">🌙</span><span class="text-[7px] font-bold mt-1 uppercase">Sueño</span>
+                                </div>
+                                <div onclick="toggleWellness('water')" class="wellness-icon ${data.wellness.water ? 'active' : ''}">
+                                    <span class="text-xl">💧</span><span class="text-[7px] font-bold mt-1 uppercase">Agua</span>
+                                </div>
+                                <div onclick="toggleWellness('mobility')" class="wellness-icon ${data.wellness.mobility ? 'active' : ''}">
+                                    <span class="text-xl">🧘</span><span class="text-[7px] font-bold mt-1 uppercase">Cuerpo</span>
+                                </div>
+                                <div onclick="toggleWellness('nature')" class="wellness-icon ${data.wellness.nature ? 'active' : ''}">
+                                    <span class="text-xl">🍃</span><span class="text-[7px] font-bold mt-1 uppercase">Aire</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.updateField = (f, v) => { const d = getDayData(selectedDate); d[f] = v; saveDayData(selectedDate, d); };
+        window.updateExamen = (i, v) => { const d = getDayData(selectedDate); d.examen[i] = v; saveDayData(selectedDate, d); };
+        window.toggleWellness = (k) => { const d = getDayData(selectedDate); d.wellness[k] = !d.wellness[k]; saveDayData(selectedDate, d); renderDayView(document.getElementById('view-container')); };
+
+        function renderNazarethView(container) {
+            const data = getDayData(selectedDate).nazareth;
+            container.innerHTML = `
+                <div class="max-w-2xl mx-auto space-y-8">
+                    <div class="text-center space-y-4">
+                        <h2 class="text-4xl text-stone-800 italic">Mi Nazareth</h2>
+                        <p class="text-[11px] text-stone-500 uppercase tracking-widest px-8 leading-relaxed italic">
+                            “Lavar un plato no porque ames lavarlo, sino porque amas a la persona que lo usará después.”
+                        </p>
+                    </div>
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-stone-100 space-y-6">
+                        <div>
+                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-2">Hogar</h3>
+                            <textarea oninput="updateNazareth('hogar', this.value)" class="bg-stone-50/50 p-4 rounded-2xl h-24 text-sm">${data.hogar}</textarea>
+                            <input oninput="updateNazareth('ofreciendoHogar', this.value)" type="text" class="mt-2 italic text-xs text-stone-400 px-2" placeholder="¿A quién estoy amando?" value="${data.ofreciendoHogar}">
+                        </div>
+                        <div>
+                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-2">Trabajo</h3>
+                            <textarea oninput="updateNazareth('trabajo', this.value)" class="bg-stone-50/50 p-4 rounded-2xl h-24 text-sm">${data.trabajo}</textarea>
+                            <input oninput="updateNazareth('ofreciendoTrabajo', this.value)" type="text" class="mt-2 italic text-xs text-stone-400 px-2" placeholder="¿Por quién lo ofrezco?" value="${data.ofreciendoTrabajo}">
+                        </div>
+                    </div>
+                    <div class="bg-[#1a1a1a] p-8 rounded-[2rem] text-white text-center">
+                        <h3 class="font-serif italic mb-4">Oración a la Sagrada Familia</h3>
+                        <p class="text-[10px] leading-relaxed opacity-60 font-light">
+                            Jesús, María y José, en vosotros contemplamos el esplendor del verdadero amor. Haz que nuestras casas sean escuelas del Evangelio y pequeñas iglesias domésticas. Amén.
+                        </p>
+                    </div>
+                </div>`;
+        }
+
+        window.updateNazareth = (f, v) => { const d = getDayData(selectedDate); d.nazareth[f] = v; saveDayData(selectedDate, d); };
+
         function generateCalendarHtml() {
+            const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
+            const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
+            const today = new Date();
             let html = '';
-            const year = viewDate.getFullYear();
-            const month = viewDate.getMonth();
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-            for (let x = firstDayIndex; x > 0; x--) html += `<div class="day-card text-stone-200 bg-stone-50/30"></div>`;
-            for (let i = 1; i <= lastDay; i++) {
-                const d = new Date(year, month, i);
-                const key = `day-${d.toISOString().split('T')[0]}`;
-                const data = localStorage.getItem(key);
-                const isToday = new Date().toDateString() === d.toDateString();
-                html += `<div onclick="selectDate(${year}, ${month}, ${i})" class="day-card text-stone-500 ${data ? 'has-content' : ''}"><span class="${isToday ? 'today' : ''}">${i}</span></div>`;
+            for (let i = 0; i < firstDay; i++) html += '<div class="day-card border-none"></div>';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const cur = new Date(viewDate.getFullYear(), viewDate.getMonth(), i);
+                const isToday = cur.toDateString() === today.toDateString();
+                const hasData = getDayData(cur).tasks || getDayData(cur).luces;
+                html += `<div onclick="selectDate(${viewDate.getFullYear()}, ${viewDate.getMonth()}, ${i})" class="day-card ${hasData ? 'has-content' : ''}"><span class="${isToday ? 'today' : 'text-stone-600'}">${i}</span></div>`;
             }
             return html;
         }
 
-        function renderDayView(container) {
-            const data = getDayData(selectedDate);
-            const dateStr = `${selectedDate.getDate()} de ${months[selectedDate.getMonth()]}`;
-            container.innerHTML = `
-                <div class="mb-6">
-                    <h2 class="text-3xl text-stone-800 italic">${dateStr}</h2>
-                    <p class="text-xs text-stone-400 mt-2 italic">"${getWeekQuote(selectedDate)}"</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm">
-                        <h3 class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">Pendientes</h3>
-                        <textarea oninput="updateField('tasks', this.value)" class="h-48 leading-relaxed" placeholder="- Tarea importante...">${data.tasks}</textarea>
-                    </div>
-                    <div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm">
-                        <h3 class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">Eventos con Horario</h3>
-                        <div id="events-list" class="space-y-3 mb-4">
-                            ${renderEvents(data.events)}
-                        </div>
-                        <div class="flex gap-2">
-                            <input id="event-time" type="time" class="w-24 text-xs border border-stone-100 rounded p-1">
-                            <input id="event-title" type="text" class="flex-1 text-xs border border-stone-100 rounded p-1" placeholder="Nombre del evento">
-                            <button onclick="addEvent()" class="bg-stone-800 text-white px-3 py-1 rounded text-xs">Add</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderEvents(events) {
-            if(!events || events.length === 0) return '<p class="text-[10px] text-stone-300">No hay eventos hoy.</p>';
-            return events.map((ev, idx) => {
-                const gCalLink = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.title)}&dates=${selectedDate.toISOString().replace(/-|:|\.\d\d\d/g,"")}/${selectedDate.toISOString().replace(/-|:|\.\d\d\d/g,"")}`;
-                return `
-                <div class="flex justify-between items-center bg-stone-50 p-2 rounded-xl">
-                    <span class="text-[10px] font-bold text-stone-400 w-12">${ev.time}</span>
-                    <span class="flex-1 text-xs text-stone-700 font-medium">${ev.title}</span>
-                    <div class="flex gap-2">
-                        <a href="${gCalLink}" target="_blank" title="Sincronizar con GCal" class="opacity-30 hover:opacity-100">🔗</a>
-                        <button onclick="deleteEvent(${idx})" class="text-red-200 hover:text-red-500">✕</button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function addEvent() {
-            const time = document.getElementById('event-time').value;
-            const title = document.getElementById('event-title').value;
-            if(!time || !title) return;
-            const data = getDayData(selectedDate);
-            data.events.push({time, title});
-            data.events.sort((a,b) => a.time.localeCompare(b.time));
-            saveDayData(selectedDate, data);
-            renderDayView(document.getElementById('view-container'));
-        }
-
-        function deleteEvent(idx) {
-            const data = getDayData(selectedDate);
-            data.events.splice(idx, 1);
-            saveDayData(selectedDate, data);
-            renderDayView(document.getElementById('view-container'));
-        }
-
-        function renderNazarethView(container) {
-            const data = getDayData(selectedDate);
-            container.innerHTML = `
-                <div class="max-w-4xl mx-auto text-center space-y-6">
-                    <h2 class="text-2xl font-bold tracking-[0.2em] text-stone-800">MI NAZARETH 🏠</h2>
-                    <p class="text-[11px] font-bold text-stone-500 leading-relaxed max-w-2xl mx-auto border-y border-stone-200 py-4 px-2">
-                        “LAVAR UN PLATO NO PORQUE AMES LAVARLO, SINO PORQUE AMAS A LA PERSONA QUE LO USARÁ DESPUÉS. EL AMOR NOS HACE CAPACES DE AMAR A OTROS DE FORMA ANTICIPADA, NOS HACE RECORRER CAMINOS CON PROPÓSITO Y HALLAR ESPERANZA EN SITUACIONES TEDIOSAS QUE EN EL PRESENTE MOMENTO QUIZÁS NO LA LLEVEN CONSIGO.”
-                    </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mt-8">
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                            <h3 class="text-xs font-bold text-stone-400 uppercase mb-4">Tareas del Hogar</h3>
-                            <textarea oninput="updateNazareth('hogar', this.value)" class="h-32 mb-4 border-b border-stone-50" placeholder="Ej: Limpiar la cocina...">${data.nazareth.hogar || ""}</textarea>
-                            <label class="text-[10px] font-bold text-stone-300 block mb-1 uppercase">¿A quién amo o por quién ofrezco?</label>
-                            <input oninput="updateNazareth('hogarOffer', this.value)" type="text" class="text-xs italic text-stone-500" placeholder="Escribe aquí..." value="${data.nazareth.hogarOffer || ""}">
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                            <h3 class="text-xs font-bold text-stone-400 uppercase mb-4">Trabajo</h3>
-                            <textarea oninput="updateNazareth('trabajo', this.value)" class="h-32 mb-4 border-b border-stone-50" placeholder="Ej: Reportes...">${data.nazareth.trabajo || ""}</textarea>
-                            <label class="text-[10px] font-bold text-stone-300 block mb-1 uppercase">¿A quién amo o por quién ofrezco?</label>
-                            <input oninput="updateNazareth('trabajoOffer', this.value)" type="text" class="text-xs italic text-stone-500" placeholder="Escribe aquí..." value="${data.nazareth.trabajoOffer || ""}">
-                        </div>
-                    </div>
-                    <div class="mt-12 p-8 bg-stone-50 rounded-[2rem] border border-stone-200">
-                        <h4 class="text-sm font-bold text-stone-600 mb-4 tracking-widest uppercase">Oración a la Sagrada Familia de Nazareth</h4>
-                        <p class="text-xs md:text-sm text-stone-500 italic leading-relaxed text-left max-w-xl mx-auto">
-                            Queridísima Sagrada Familia, que es también mía. Pónganme en medio de ustedes en ese hogar de amor. Ayúdenme a transformar en mi vida lo ordinario en extraordinario, lo terreno en divino; la carga en ofrenda, la monotonía en contemplación, la presencia en don, las preocupaciones en oración, la gratitud en alabanza, la pequeñez en grandeza y la sobremesa en palabra de Dios.<br><br>
-                            Que sea capaz de darme cuenta que es ahí, en medio de las cosas más sencillas, que el cielo y la tierra conviven. Les pido hagan de mi hogar un Nazareth. <br>
-                            <span class="font-bold block mt-2">Amén</span>
-                        </p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderGlobalPendientes(container) {
-            const currentMonth = viewDate.getMonth();
-            const currentYear = viewDate.getFullYear();
-            let tasksHtml = '';
-            let eventsHtml = '';
-            for(let i=1; i<=31; i++) {
-                const d = new Date(currentYear, currentMonth, i);
-                if(d.getMonth() !== currentMonth) break;
-                const data = getDayData(d);
-                if(data.tasks) {
-                    tasksHtml += `<div class="mb-4"><span class="text-[9px] font-bold text-stone-400 block">${i} de ${months[currentMonth]}</span><p class="text-xs text-stone-600 whitespace-pre-wrap">${data.tasks}</p></div>`;
-                }
-                if(data.events && data.events.length > 0) {
-                    data.events.forEach(ev => {
-                        eventsHtml += `<div class="flex gap-2 text-xs mb-2 items-center"><span class="font-bold text-stone-400">${i}/${currentMonth+1}</span><span class="text-stone-300">${ev.time}</span><span class="text-stone-700">${ev.title}</span></div>`;
-                    });
-                }
-            }
-            container.innerHTML = `
-                <h2 class="text-3xl text-stone-800 mb-8">Resumen del Mes</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                        <h3 class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">Todos los Pendientes</h3>
-                        ${tasksHtml || '<p class="text-xs text-stone-300">No hay pendientes registrados.</p>'}
-                    </div>
-                    <div class="bg-stone-50 p-6 rounded-3xl shadow-sm border border-stone-100">
-                        <h3 class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">Agenda de Eventos</h3>
-                        ${eventsHtml || '<p class="text-xs text-stone-300">No hay eventos este mes.</p>'}
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateField(field, value) {
-            const data = getDayData(selectedDate);
-            data[field] = value;
-            saveDayData(selectedDate, data);
-        }
-
-        function updateNazareth(field, value) {
-            const data = getDayData(selectedDate);
-            data.nazareth[field] = value;
-            saveDayData(selectedDate, data);
-        }
-
-        function changeMonth(offset) { viewDate.setMonth(viewDate.getMonth() + offset); showTab('mes'); }
+        function renderOracionView(container) { container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic text-center">Tipos de Oración</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><h3 class="text-[10px] font-bold text-stone-400 mb-2 uppercase">Agradecimiento</h3><p class="text-xs text-stone-500 italic">"Gracias Padre por el regalo de este día..."</p></div><div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><h3 class="text-[10px] font-bold text-stone-400 mb-2 uppercase">Petición</h3><p class="text-xs text-stone-500 italic">"Señor, te pido hoy especialmente por..."</p></div><div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><h3 class="text-[10px] font-bold text-stone-400 mb-2 uppercase">Intercesión</h3><p class="text-xs text-stone-500 italic">"Madre, intercede ante tu hijo por..."</p></div></div>`; }
+        function renderWellnessView(container) { container.innerHTML = `<div class="text-center"><h2 class="text-4xl text-stone-800 mb-4 italic">Bienestar</h2><p class="text-stone-400 text-sm italic mb-10">"Cuida tu cuerpo para que tu alma tenga ganas de habitar en él."</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto"><div class="bg-white p-8 rounded-3xl border border-stone-100"><h3 class="text-xs font-bold text-stone-400 mb-4 uppercase tracking-tighter">Descanso</h3><p class="text-xs text-stone-500 leading-relaxed">Prioriza tus 7-8 horas de sueño para regenerar tu espíritu.</p></div><div class="bg-white p-8 rounded-3xl border border-stone-100"><h3 class="text-xs font-bold text-stone-400 mb-4 uppercase tracking-tighter">Cuerpo</h3><p class="text-xs text-stone-500 leading-relaxed">Movilidad, hidratación y contacto con la creación.</p></div></div></div>`; }
+        function renderLucesView(container) { container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Luces</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="luces-grid"></div>`; const grid = document.getElementById('luces-grid'); for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('day-')) { const d = JSON.parse(localStorage.getItem(k)); if (d.luces) grid.innerHTML += `<div class="bg-[#fffbf0] p-6 rounded-3xl border border-yellow-100 italic text-stone-700 text-sm">${d.luces} <span class="block text-[8px] mt-2 font-bold opacity-30 uppercase">${k.replace('day-', '')}</span></div>`; } } }
+        function renderPendientesView(container) { container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Pendientes</h2><div class="space-y-4" id="todo-list"></div>`; const list = document.getElementById('todo-list'); for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith('day-')) { const d = JSON.parse(localStorage.getItem(k)); if (d.tasks) list.innerHTML += `<div class="bg-white p-4 rounded-2xl border border-stone-100"><p class="text-[9px] font-bold text-stone-300 mb-2 uppercase">${k.replace('day-', '')}</p><p class="text-xs text-stone-600 whitespace-pre-wrap">${d.tasks}</p></div>`; } } }
+        function changeMonth(o) { viewDate.setMonth(viewDate.getMonth() + o); showTab('mes'); }
         function selectDate(y, m, d) { selectedDate = new Date(y, m, d); showTab('dia'); }
-
-        function renderNotesView(c) { 
-            const saved = localStorage.getItem('global-notes') || "";
-            c.innerHTML = `<h2 class="text-4xl text-stone-800 mb-6 font-serif">Notas generales 📖</h2><textarea oninput="localStorage.setItem('global-notes', this.value)" class="bg-white p-8 rounded-3xl min-h-[500px] shadow-sm text-stone-600 leading-relaxed" placeholder="Ideas y proyectos...">${saved}</textarea>`; 
-        }
-        function renderLucesView(c) { c.innerHTML = '<h2 class="text-4xl">Mis Luces ✨</h2><p class="mt-4 text-stone-400">Las luces se cargan desde los días...</p>'; }
-        function renderPrayerGlobalView(c) { c.innerHTML = '<h2 class="text-4xl">Oración 🙏</h2>'; }
-        function renderWellnessGlobalView(c) { c.innerHTML = '<h2 class="text-4xl">Bienestar 🌿</h2>'; }
 
         showTab('mes');
     </script>
