@@ -1,462 +1,529 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planner Nazareth - The Holy Item</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #e3e0db; color: #444; }
-        h1, h2, h3 { font-family: 'Playfair Display', serif; }
-        .sidebar-item { transition: all 0.2s; cursor: pointer; opacity: 0.6; display: flex; flex-direction: column; align-items: center; padding: 12px 0; width: 100%; text-align: center; }
-        .sidebar-item:hover { opacity: 1; background: rgba(255,255,255,0.05); }
-        .active-tab { opacity: 1; background: rgba(255,255,255,0.1); border-radius: 12px; }
-        textarea, input[type="text"] { background: transparent; border: none; outline: none; width: 100%; resize: none; transition: 0.3s; }
-        textarea:focus, input[type="text"]:focus { background: rgba(0,0,0,0.02); border-radius: 8px; padding: 4px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-        .day-card { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 0.5px solid #f0f0f0; cursor: pointer; transition: 0.2s; position: relative; }
-        .day-card:hover { background-color: #f9f9f9; }
-        .today { background: #333; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
-        .has-content::after { content: ''; position: absolute; bottom: 6px; width: 6px; height: 6px; background: #8a817c; border-radius: 50%; }
-        .wellness-icon { cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; }
-        .wellness-icon.inactive { opacity: 0.3; grayscale: 100%; }
-        .custom-checkbox { accent-color: #333; transform: scale(1.2); cursor: pointer; }
-        
-        @media (max-width: 768px) {
-            .main-container { flex-direction: column-reverse; height: 100vh; }
-            .sidebar { width: 100%; height: auto; flex-direction: row; padding: 10px; border-top: 1px solid #333; overflow-x: auto; }
-            .sidebar-item { width: auto; padding: 10px 12px; min-width: 65px; }
-        }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center justify-center p-2 md:p-4">
+recupera todo lo que estaba en este código e integrado al nuevo:
 
-    <div class="w-full max-w-6xl bg-[#fcfcfc] rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row min-h-[85vh] overflow-hidden border border-stone-200 main-container">
-        
-        <nav class="w-full md:w-24 bg-[#1a1a1a] flex flex-row md:flex-col items-center py-4 md:py-6 justify-between text-white sidebar">
-            <div class="flex flex-row md:flex-col items-center gap-1 md:gap-4 w-full px-2">
-                <div class="hidden md:flex w-12 h-12 bg-[#333] rounded-full items-center justify-center font-bold text-xs border border-stone-600 mb-2 tracking-tighter">THI</div>
-                <div onclick="showTab('mes')" id="nav-mes" class="sidebar-item active-tab"><span class="text-xl">📅</span><span class="text-[8px] font-bold mt-1">MES</span></div>
-                <div onclick="showTab('dia')" id="nav-dia" class="sidebar-item"><span class="text-xl">📝</span><span class="text-[8px] font-bold mt-1">DÍA</span></div>
-                <div onclick="showTab('luces')" id="nav-luces" class="sidebar-item"><span class="text-xl">✨</span><span class="text-[8px] font-bold mt-1">LUCES</span></div>
-                <div onclick="showTab('oracion')" id="nav-oracion" class="sidebar-item"><span class="text-xl">🙏</span><span class="text-[8px] font-bold mt-1">DIARIO</span></div>
-                <div onclick="showTab('bienestar')" id="nav-bienestar" class="sidebar-item"><span class="text-xl">🌿</span><span class="text-[8px] font-bold mt-1">BIEN</span></div>
-                <div onclick="showTab('nazareth')" id="nav-nazareth" class="sidebar-item"><span class="text-xl">🏠</span><span class="text-[8px] font-bold mt-1">CASA</span></div>
-                <div onclick="showTab('pendientes')" id="nav-pendientes" class="sidebar-item"><span class="text-xl">📋</span><span class="text-[8px] font-bold mt-1">TODO</span></div>
-            </div>
-            <a href="https://calendar.google.com" target="_blank" class="hidden md:block opacity-30 hover:opacity-100 transition-opacity mb-4"><span class="text-xl">🔗</span></a>
-        </nav>
+<!DOCTYPE html> 
+<html lang="es"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"> 
+    <style> 
+        body { font-family: 'Inter', sans-serif; background-color: #e3e0db; color: #444; } 
+        h1, h2, h3 { font-family: 'Playfair Display', serif; } 
+        .sidebar-item { transition: all 0.2s; cursor: pointer; opacity: 0.6; display: flex; flex-direction: column; align-items: center; padding: 10px 0; width: 100%; } 
+        .sidebar-item:hover { opacity: 1; background: rgba(255,255,255,0.05); } 
+        .active-tab { opacity: 1; background: rgba(255,255,255,0.1); border-radius: 12px; } 
+         
+        textarea, input[type="text"] { background: transparent; border: none; outline: none; width: 100%; resize: none; transition: 0.3s; } 
+        textarea:focus, input[type="text"]:focus { background: rgba(0,0,0,0.02); border-radius: 8px; padding: 4px; } 
+         
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); } 
+        .day-card { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 0.5px solid #f0f0f0; cursor: pointer; transition: 0.2s; position: relative; } 
+        .day-card:hover { background-color: #f9f9f9; } 
+        .today { background: #333; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; } 
+         
+        /* CAMBIO AQUÍ: Puntito más grande y color beige oscuro */ 
+        .has-content::after { content: ''; position: absolute; bottom: 6px; width: 6px; height: 6px; background: #8a817c; border-radius: 50%; } 
 
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#faf9f6]" id="main-scroll">
-            <div id="view-container"></div>
-        </main>
-    </div>
+        /* Iconos de Bienestar */ 
+        .wellness-icon { cursor: pointer; transition: transform 0.1s ease-in-out; display: flex; flex-direction: column; align-items: center; justify-content: center; } 
+        .wellness-icon:active { transform: scale(0.9); } 
+        .wellness-label { font-size: 8px; margin-top: 2px; font-weight: bold; } 
+         
+        .custom-checkbox { accent-color: #333; transform: scale(1.2); cursor: pointer; } 
+    </style> 
+</head> 
+<body class="min-h-screen flex flex-col items-center justify-center p-4"> 
 
-    <script>
-        let viewDate = new Date();
-        let selectedDate = new Date();
-        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        
-        // --- 104 FRASES SEMANALES ---
-        const weeklyQuotes = [
-            "\"Dios se da a nosotros en la medida en que nosotros esperamos en Él.\" – Jacques Philippe",
-            "\"La medida del amor es amar sin medida.\" – San Agustín",
-            "\"La oración es el oxígeno del alma.\" – Padre Pío",
-            "\"Dios nunca dijo que el camino sería fácil, pero sí dijo que la llegada valdría la pena.\" – Max Lucado",
-            "\"La gloria de Dios es el hombre plenamente vivo.\" – San Ireneo",
-            "\"Déjate llevar por las manos de Dios y nunca perderás el rumbo de tu vida.\" – Anónimo",
-            "\"La santidad no está hecha de algunos actos heroicos, sino de mucho amor cotidiano.\" – Papa Francisco",
-            "\"No busques qué dar. Date a ti mismo.\" – San Agustín",
-            "\"La paz no es la ausencia de problemas, sino la presencia de Dios.\" – Jacques Philippe",
-            "\"Él quiere tomar tu vida, para ofrecerte la suya.\" – Santa Teresa Benedicta de la Cruz",
-            "\"Dios tiene un plan que lleva tu nombre.\" – Anónimo",
-            "\"Lo que se necesita para conseguir la felicidad, no es una vida cómoda, sino un corazón enamorado.\" – San Josemaría Escrivá",
-            "\"Hay una enorme diferencia entre 'haz lo posible' y 'hazlo posible', la primera depende de ti, la segunda de Dios y Él todo lo puede.\" – Anónimo",
-            "\"Dios ha escrito para cada uno de nosotros una historia única e irrepetible, pero nos ha dejado la libertad de escribir la conclusión.\" – San Carlo Acutis",
-            "\"Si juzgas a la gente, no tienes tiempo para amarla.\" – Madre Teresa de Calcuta",
-            "\"No existen límites para quien tiene fe en Dios.\" – Anónimo",
-            "\"Le haces un cumplido de Dios cuando le pides cosas grandes.\" – Santa Teresa de Ávila",
-            "\"La fe es creer lo que no ves; la recompensa es ver lo que crees.\" – San Agustín",
-            "\"La vida con Dios no es inmunidad frente a las dificultades, sino paz en medio de ellas.\" – C. S. Lewis",
-            "\"No te inquietes por el mañana; Dios ya está allí esperándote.\" – Jacques Philippe",
-            "\"Reza como si todo dependiera de Dios. Trabaja como si todo dependiera de ti.\" – San Agustín",
-            "\"La humildad es aceptar con alegría ser lo que somos ante los ojos de Dios.\" – Jacques Philippe",
-            "\"A veces Dios no cambia las circunstancias porque está usando las circunstancias para cambiarte a ti.\" – Anónimo",
-            "\"La fe es un salto a la oscuridad de las manos de Dios.\" – Søren Kierkegaard",
-            "\"Difunde el amor dondequiera que vayas.\" – Madre Teresa de Calcuta",
-            "\"Dios no nos necesita, pero nos quiso.\" – Rick Warren",
-            "\"La medida de nuestra paz interior depende de nuestra confianza en Dios.\" – Jacques Philippe",
-            "\"No importa a lo que te enfrentes en la vida, nunca te sueltes de la mano de Dios.\" – Anónimo",
-            "\"Nada te turbe, nada te espante, todo se pasa, Dios no se muda.\" – Santa Teresa de Ávila",
-            "\"Sin la paz del corazón, no podemos hacer nada bueno.\" – Jacques Philippe",
-            "\"Dios sabe en qué tiempo entregarte cada cosa que pides.\" – Anónimo",
-            "\"El amor es la llave que abre todas las puertas.\" – San Vicente de Paúl",
-            "\"Yo puedo hacer cosas que tú no puedes, tú puedes hacer cosas que yo no puedo; juntos podemos hacer grandes cosas.\" – Madre Teresa de Calcuta",
-            "\"La oración no es para cambiar a Dios, sino para cambiarnos a nosotros mismos.\" – C. S. Lewis",
-            "\"El camino más corto para llegar a la santidad es aceptar lo que Dios nos envía hoy.\" – Jacques Philippe",
-            "\"La gloria del Señor brilla sobre ti; levántate y resplandece.\" – Anónimo",
-            "\"Si Dios es tu socio, haz planes en grande.\" – D. L. Moody",
-            "\"Aceptar nuestra propia debilidad es la puerta abierta a la fuerza de Dios.\" – Jacques Philippe",
-            "\"Dios conoce lo más profundo de nuestro ser; es Él quien lo ha modelado con sus propias manos.\" – Anónimo",
-            "\"No todos podemos hacer grandes cosas, pero sí cosas pequeñas con gran amor.\" – Madre Teresa de Calcuta",
-            "\"La fe es aceptar que Dios nos ama incluso cuando no nos sentimos amables.\" – Jacques Philippe",
-            "\"Dios no te hubiera dado la capacidad de soñar sin darte también la posibilidad de convertir tus sueños en realidad.\" – Anónimo",
-            "\"Nunca tengas miedo de confiar un futuro desconocido a un Dios conocido.\" – Corrie ten Boom",
-            "\"Nuestra única tarea es mantener el corazón abierto a la gracia.\" – Jacques Philippe",
-            "\"La verdadera fe no se encuentra en el entendimiento, sino en el corazón.\" – Blaise Pascal",
-            "\"Tu lucha silenciosa hace ruido en el cielo.\" – Padre Pío",
-            "\"Quien tiene paz en su interior lo tiene todo, aunque le falte lo material.\" – Jacques Philippe",
-            "\"Dios, gracias por mantenerme de pie, aun cuando a veces todo parece caer en pedazos.\" – Anónimo",
-            "\"El grado de libertad de una persona se mide por su capacidad de amar.\" – Jacques Philippe",
-            "\"Si puedes, entiende; si no puedes, cree.\" – Santo Tomás de Aquino",
-            "\"No te das cuenta de que Jesús es todo lo que necesitas hasta que Jesús es todo lo que tienes.\" – Tim Keller",
-            "\"El amor de Dios es fiel; Él nunca abandona la obra de sus manos.\" – Jacques Philippe",
-            "\"La esperanza es el sueño del hombre despierto.\" – Aristóteles",
-            "\"Todo lo que está bajo el control de Dios nunca está fuera de control.\" – Charles R. Swindoll",
-            "\"La verdadera felicidad no está en las circunstancias, sino en la unión con Dios.\" – Jacques Philippe",
-            "\"Bienaventurados los corazones flexibles, porque no se romperán.\" – San Francisco de Sales",
-            "\"Camina con los pies en la tierra, pero con la mirada y el corazón en el cielo.\" – San Juan Bosco",
-            "\"Confiar en Dios significa creer que Él puede sacar un bien incluso de nuestros errores.\" – Jacques Philippe",
-            "\"La tierra no tiene ninguna tristeza que el cielo no pueda curar.\" – Santo Tomás Moro",
-            "\"La oración es el tiempo donde dejamos que Dios nos ame.\" – Jacques Philippe",
-            "\"Porque si estamos locos, es para Dios.\" – San Francisco de Asís",
-            "\"No dejes que termine el día sin haber crecido un poco más.\" – Anónimo",
-            "\"No busques la paz fuera de ti; la paz es un don que Dios deposita en tu alma.\" – Jacques Philippe",
-            "\"La vida es tu navío, no tu morada.\" – Santa Teresita del Niño Jesús",
-            "\"Un hombre no puede ser más hombre que cuando está de rodillas ante Dios.\" – San Juan XXIII",
-            "\"Dios se propone darnos lo que necesitamos, no lo que creemos necesitar ahora.\" – C. S. Lewis",
-            "\"No importa lo que esté sucediendo en tu vida, Dios ya tiene algo perfecto para ti.\" – Anónimo",
-            "\"El futuro es tan brillante como las promesas de Dios.\" – William Carey",
-            "\"No tengas miedo, confía en Dios.\" – Papa Francisco",
-            "\"Quien a Dios tiene, nada le falta: solo Dios basta.\" – Santa Teresa de Ávila",
-            "\"Dale a la gente una segunda oportunidad. Basta una persona buena para que haya esperanza.\" – Papa Francisco",
-            "\"La paz comienza con una sonrisa.\" – Madre Teresa de Calcuta",
-            "\"Dios ama a cada uno de nosotros como si solo existiera uno.\" – San Agustín",
-            "\"El corazón tiene razones que la razón no entiende.\" – Blaise Pascal",
-            "\"Nunca dejes que las opiniones de los demás derrumben lo que Dios piensa de ti.\" – Anónimo",
-            "\"Donde hay caridad y amor, allí está Dios.\" – San Juan de la Cruz",
-            "\"A veces Dios usa las circunstancias para cambiarte a ti.\" – Anónimo",
-            "\"Para llegar a lo que no eres, has de ir por donde no eres.\" – San Juan de la Cruz",
-            "\"La fe mueve montañas; el amor mueve fronteras.\" – Anónimo",
-            "\"Al atardecer de la vida, nos examinarán en el amor.\" – San Juan de la Cruz",
-            "\"Dios tiene grandes cosas para tu vida, solamente cree.\" – Anónimo",
-            "\"El que no vive para servir, no sirve para vivir.\" – San Juan Pablo II",
-            "\"Tu talento es un regalo de Dios para ti; lo que hagas con él es tu regalo para Dios.\" – Leo Buscaglia",
-            "\"La verdadera libertad es el poder de hacer lo que debemos hacer.\" – C. S. Lewis",
-            "\"Dios es el único que puede llenar el vacío del alma.\" – San Agustín",
-            "\"Ama hasta que te duela. Si te duele, es buena señal.\" – Madre Teresa de Calcuta",
-            "\"La cruz es la escalera al cielo.\" – Santa Rosa de Lima",
-            "\"Dios no elige a los preparados, Él prepara a los elegidos.\" – Anónimo",
-            "\"Busca a Dios en todas las cosas y lo encontrarás en ti mismo.\" – San Ignacio de Loyola",
-            "\"Todo para la mayor gloria de Dios.\" – San Ignacio de Loyola",
-            "\"El amor es la fuerza más poderosa del mundo.\" – San Francisco de Asís",
-            "\"Predica el Evangelio en todo momento, y si es necesario, usa palabras.\" – San Francisco de Asís",
-            "\"El sufrimiento compartido es sufrimiento disminuido.\" – C. S. Lewis",
-            "\"Mirad a las estrellas, pero no olvidéis que vuestro hogar está en Dios.\" – C. S. Lewis",
-            "\"La paciencia todo lo alcanza.\" – Santa Teresa de Ávila",
-            "\"Si tienes a Dios, lo tienes todo.\" – San Cipriano",
-            "\"La oración es el arma de los valientes.\" – Padre Pío",
-            "\"Reza, espera y no te preocupes.\" – Padre Pío",
-            "\"Dios te ama tal como eres, pero te ama demasiado para dejarte así.\" – C. S. Lewis",
-            "\"No hay lugar tan oscuro donde la luz de Dios no pueda llegar.\" – Anónimo",
-            "\"Si pones a Dios en el centro, todo lo demás encontrará su lugar.\" – Anónimo",
-            "\"Dios es el arquitecto de tu destino, confía en sus planos.\" – Anónimo",
-            "\"Solo Dios sabe cuánto te ama, y solo Él puede saciar tu sed de infinito.\" – San Juan Pablo II",
-            "\"Tu vida es el mensaje que Dios envía al mundo; asegúrate de que sea hermoso.\" – Anónimo"
-        ];
+    <div class="w-full max-w-6xl bg-[#fcfcfc] rounded-[2.5rem] shadow-2xl flex min-h-[750px] overflow-hidden border border-stone-200"> 
+         
+        <nav class="w-24 bg-[#1a1a1a] flex flex-col items-center py-6 justify-between text-white overflow-y-auto custom-scrollbar"> 
+            <div class="flex flex-col items-center gap-4 w-full px-2"> 
+                <div class="w-14 h-14 bg-[#333] rounded-full flex items-center justify-center font-bold text-sm tracking-widest border border-stone-600 shadow-lg mb-2">THI</div> 
+                 
+                <div onclick="showTab('mes')" id="nav-mes" class="sidebar-item active-tab"> 
+                    <span class="text-xl">📅</span><span class="text-[9px] font-bold tracking-widest mt-1">MES</span> 
+                </div> 
+                <div onclick="showTab('dia')" id="nav-dia" class="sidebar-item"> 
+                    <span class="text-xl">📝</span><span class="text-[9px] font-bold tracking-widest mt-1">DÍA</span> 
+                </div> 
+                <div onclick="showTab('luces')" id="nav-luces" class="sidebar-item"> 
+                    <span class="text-xl">✨</span><span class="text-[9px] font-bold tracking-widest mt-1">LUCES</span> 
+                </div> 
+                <div onclick="showTab('oracion')" id="nav-oracion" class="sidebar-item"> 
+                    <span class="text-xl">🙏</span><span class="text-[9px] font-bold tracking-widest mt-1">ORACIÓN</span> 
+                </div> 
+                <div onclick="showTab('bienestar')" id="nav-bienestar" class="sidebar-item"> 
+                    <span class="text-xl">🌿</span><span class="text-[9px] font-bold tracking-widest mt-1">BIENESTAR</span> 
+                </div> 
+                <div onclick="showTab('notas')" id="nav-notas" class="sidebar-item"> 
+                    <span class="text-xl">📖</span><span class="text-[9px] font-bold tracking-widest mt-1">NOTAS</span> 
+                </div> 
+            </div> 
+             
+            <a href="https://calendar.google.com" target="_blank" class="opacity-30 hover:opacity-100 transition-opacity mb-4"> 
+                <span class="text-xl">🔗</span> 
+            </a> 
+        </nav> 
 
-        function getQuote(date) {
-            const baseDate = new Date(2025, 0, 1);
-            const diff = date - baseDate;
-            const weekIndex = Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
-            const index = Math.abs(weekIndex) % 104;
-            return weeklyQuotes[index] || weeklyQuotes[0];
-        }
+        <main class="flex-1 p-8 overflow-y-auto bg-[#faf9f6]" id="main-scroll"> 
+            <div id="view-container"></div> 
+        </main> 
+    </div> 
 
-        // --- MANEJO DE DATOS ---
-        function getDayData(date) {
-            const key = `day-${date.toISOString().split('T')[0]}`;
-            const data = localStorage.getItem(key);
-            return data ? JSON.parse(data) : { 
-                tasks: "", events: "", luces: "", 
-                examen: ["", "", "", "", ""], 
-                wellness: { sleep: 0, water: 0, mobility: 0, nature: 0 },
-                prayer: { checks: [], message: "" },
-                nazareth: { hogar: "", trabajo: "", ofreciendoHogar: "", ofreciendoTrabajo: "" }
-            };
-        }
+    <footer class="mt-4 text-stone-500 text-[10px] tracking-[0.2em] uppercase"> 
+        Digital Planner by <span class="font-bold">The Holy Item</span> © 
+    </footer> 
 
-        function saveDayData(date, data) {
-            const key = `day-${date.toISOString().split('T')[0]}`;
-            localStorage.setItem(key, JSON.stringify(data));
-        }
+    <script> 
+        // --- CONFIGURACIÓN --- 
+        let viewDate = new Date(); 
+        let selectedDate = new Date(); 
+        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
 
-        // --- VISTAS ---
-        function showTab(tab) {
-            const container = document.getElementById('view-container');
-            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active-tab'));
-            document.getElementById('nav-' + tab).classList.add('active-tab');
-            document.getElementById('main-scroll').scrollTop = 0;
+        // --- MANEJO DE DATOS --- 
+        function getDayData(date) { 
+            const key = `day-${date.toISOString().split('T')[0]}`; 
+            const data = localStorage.getItem(key); 
+            return data ? JSON.parse(data) : {  
+                tasks: "",  
+                luces: [],  
+                examen: ["", "", "", "", ""],  
+                wellness: { sleep: 0, water: 0, mobility: 0, nature: 0 }, 
+                prayer: { checks: [], message: "" } 
+            }; 
+        } 
 
-            if (tab === 'mes') renderMonthView(container);
-            else if (tab === 'dia') renderDayView(container);
-            else if (tab === 'luces') renderLucesGallery(container);
-            else if (tab === 'oracion') renderSpiritualDiary(container);
-            else if (tab === 'bienestar') renderWellnessGlobal(container);
-            else if (tab === 'nazareth') renderNazarethView(container);
-            else if (tab === 'pendientes') renderPendientesView(container);
-        }
+        function saveDayData(date, data) { 
+            const key = `day-${date.toISOString().split('T')[0]}`; 
+            localStorage.setItem(key, JSON.stringify(data)); 
+        } 
 
-        // --- VISTA MENSUAL ---
-        function renderMonthView(container) {
-            const monthName = months[viewDate.getMonth()];
-            container.innerHTML = `
-                <div class="flex justify-between items-center mb-8">
-                    <div class="flex items-baseline gap-4">
-                        <h2 class="text-4xl text-stone-800">${monthName} <span class="text-stone-300">${viewDate.getFullYear()}</span></h2>
-                        <span class="hidden lg:block text-[10px] text-stone-400 italic font-serif max-w-sm border-l border-stone-200 pl-4 leading-relaxed">
-                            ${getQuote(viewDate)}
-                        </span>
-                    </div>
-                    <div class="flex gap-4 text-2xl text-stone-300">
-                        <button onclick="changeMonth(-1)" class="hover:text-stone-800">‹</button>
-                        <button onclick="changeMonth(1)" class="hover:text-stone-800">›</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-7 mb-2 text-[10px] font-bold text-stone-300 tracking-widest text-center">
-                    <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div>
-                </div>
-                <div class="calendar-grid bg-white rounded-2xl shadow-sm overflow-hidden border border-stone-100">
-                    ${generateCalendarHtml()}
-                </div>
-            `;
-        }
+        // --- VISTAS --- 
+        function showTab(tab) { 
+            const container = document.getElementById('view-container'); 
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active-tab')); 
+            const navId = tab === 'dia' ? 'dia' : tab;  
+            const navEl = document.getElementById('nav-' + navId); 
+            if(navEl) navEl.classList.add('active-tab'); 
 
-        function generateCalendarHtml() {
-            const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
-            const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
-            const today = new Date();
-            let html = '';
-            for (let i = 0; i < firstDay; i++) html += '<div class="day-card border-none"></div>';
-            for (let i = 1; i <= daysInMonth; i++) {
-                const cur = new Date(viewDate.getFullYear(), viewDate.getMonth(), i);
-                const isToday = cur.toDateString() === today.toDateString();
-                const dData = getDayData(cur);
-                const hasContent = dData.tasks || dData.luces || dData.prayer.message;
-                html += `<div onclick="selectDate(${viewDate.getFullYear()}, ${viewDate.getMonth()}, ${i})" class="day-card ${hasContent ? 'has-content' : ''}"><span class="${isToday ? 'today' : 'text-stone-600'}">${i}</span></div>`;
-            }
-            return html;
-        }
+            document.getElementById('main-scroll').scrollTop = 0; 
 
-        // --- VISTA DIARIA (Fusión de V1 y V2) ---
-        function renderDayView(container) {
-            const data = getDayData(selectedDate);
-            const dateStr = `${selectedDate.getDate()} de ${months[selectedDate.getMonth()]}`;
-            
-            container.innerHTML = `
-                <div class="mb-6">
-                    <div class="flex items-center gap-4 mb-1">
-                        <button onclick="showTab('mes')" class="text-stone-200 hover:text-stone-800 text-xl">←</button>
-                        <h2 class="text-3xl text-stone-800 italic">${dateStr}</h2>
-                    </div>
-                    <p class="text-[10px] text-stone-400 italic font-serif ml-10">${getQuote(selectedDate)}</p>
-                </div>
+            if (tab === 'mes') renderMonthView(container); 
+            else if (tab === 'dia') renderDayView(container); 
+            else if (tab === 'luces') renderLucesView(container); 
+            else if (tab === 'oracion') renderPrayerGlobalView(container); 
+            else if (tab === 'bienestar') renderWellnessGlobalView(container); 
+            else renderNotesView(container); 
+        } 
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="space-y-6">
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                            <h3 class="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Pendientes</h3>
-                            <textarea oninput="updateField('tasks', this.value)" class="h-32 text-stone-600" placeholder="- Escribe tus tareas...">${data.tasks}</textarea>
-                        </div>
-                        
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                            <h3 class="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-6">Bienestar</h3>
-                            <div class="space-y-4">
-                                ${renderWellnessRow('sleep', '🌙', 'SUEÑO (1HR)', 8, data.wellness.sleep, 'text-indigo-400')}
-                                ${renderWellnessRow('water', '💧', 'HIDRATACIÓN (VASO)', 8, data.wellness.water, 'text-blue-400')}
-                                ${renderWellnessRow('mobility', '🦶', 'CUERPO (20m)', 3, data.wellness.mobility, 'text-orange-400')}
-                                ${renderWellnessRow('nature', '🌿', 'AIRE (10m)', 3, data.wellness.nature, 'text-green-500')}
-                            </div>
-                        </div>
+        function renderMonthView(container) { 
+            const monthName = months[viewDate.getMonth()]; 
+            container.innerHTML = ` 
+                <div class="flex justify-between items-center mb-8"> 
+                    <h2 class="text-4xl text-stone-800">${monthName} <span class="text-stone-300">${viewDate.getFullYear()}</span></h2> 
+                    <div class="flex gap-4 text-2xl text-stone-400"> 
+                        <button onclick="changeMonth(-1)">‹</button><button onclick="changeMonth(1)">›</button> 
+                    </div> 
+                </div> 
+                <div class="grid grid-cols-7 mb-2 text-xs font-bold text-stone-400 tracking-widest text-center"> 
+                    <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div> 
+                </div> 
+                <div class="calendar-grid bg-white rounded-2xl shadow-sm overflow-hidden border border-stone-100"> 
+                    ${generateCalendarHtml()} 
+                </div> 
+            `; 
+        } 
 
-                        <div class="bg-stone-800 p-6 rounded-3xl text-white">
-                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-4">Vida de Oración</h3>
-                            <div class="grid grid-cols-1 gap-2 text-xs mb-4">
-                                ${renderPrayerChecks(data.prayer.checks)}
-                            </div>
-                            <p class="text-[10px] font-bold text-stone-400 uppercase mb-2">¿Qué me dijo Dios hoy?</p>
-                            <textarea oninput="updatePrayerMsg(this.value)" class="bg-stone-700/50 p-3 rounded-xl h-20 text-xs text-stone-200" placeholder="Guárdalo en el corazón...">${data.prayer.message}</textarea>
-                        </div>
-                    </div>
+        function renderDayView(container) { 
+            const data = getDayData(selectedDate); 
+            const dateStr = `${selectedDate.getDate()} de ${months[selectedDate.getMonth()]}`; 
 
-                    <div class="space-y-6">
-                        <div class="bg-[#fffbf0] p-6 rounded-3xl border border-stone-100">
-                            <h3 class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase mb-2">Luz del Día ✨</h3>
-                            <textarea oninput="updateField('luces', this.value)" class="h-16 italic text-stone-700 text-sm" placeholder="Un pequeño milagro...">${data.luces}</textarea>
-                        </div>
+            container.innerHTML = ` 
+                <div class="flex items-center gap-4 mb-6"> 
+                    <button onclick="showTab('mes')" class="text-stone-300 hover:text-stone-800 text-xl">←</button> 
+                    <h2 class="text-3xl text-stone-800 italic">${dateStr}</h2> 
+                </div> 
 
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-4">Examen de Conciencia</h3>
-                            <div class="space-y-4">
-                                ${renderExamenInputs(data.examen)}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8"> 
+                    <div class="space-y-6"> 
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100"> 
+                            <h3 class="text-sm font-bold text-stone-400 tracking-widest uppercase mb-4">Pendientes</h3> 
+                            <textarea oninput="updateField('tasks', this.value)" class="w-full h-40 text-stone-600 leading-relaxed" placeholder="- Tarea importante...">${data.tasks}</textarea> 
+                        </div> 
 
-        // --- RENDERIZADORES DE COMPONENTES ---
-        function renderWellnessRow(type, icon, label, max, current, color) {
-            let dots = '';
-            for(let i=1; i<=max; i++) {
-                dots += `<div onclick="updateWellness('${type}', ${i})" class="wellness-icon ${i > current ? 'inactive' : ''} cursor-pointer text-xl ${i <= current ? color : 'text-stone-200'}">${icon}</div>`;
-            }
-            return `<div><p class="text-[8px] font-bold text-stone-400 mb-1">${label}</p><div class="flex gap-1">${dots}</div></div>`;
-        }
+                        <div class="bg-[#fffbf0] p-6 rounded-3xl shadow-sm border border-stone-100 relative overflow-hidden"> 
+                            <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl">✨</div> 
+                            <h3 class="text-sm font-bold text-yellow-600 tracking-widest uppercase mb-4">Luces del día ✨</h3> 
+                            <textarea oninput="updateLuces(this.value)" class="w-full h-32 text-stone-700 italic" placeholder="¿Qué pequeño milagro sucedió hoy?">${data.luces.join('\n')}</textarea> 
+                        </div> 
 
-        function renderExamenInputs(values) {
-            const qs = [
-                "¿Qué es lo que más agradezco de hoy?",
-                "¿En qué situaciones vi a Dios el día de hoy?",
-                "¿Qué emoción predominó hoy? (Háblalo con Dios)",
-                "¿Desde qué lugar interior me gustaría vivir mañana?",
-                "¿En qué momentos me quedé corta en amor?"
-            ];
-            return qs.map((q, i) => `
-                <div>
-                    <label class="block text-[9px] font-bold text-stone-400 mb-1 leading-tight">${q}</label>
-                    <input type="text" value="${values[i]}" oninput="updateExamen(${i}, this.value)" class="border-b border-stone-100 py-1 text-xs text-stone-600" placeholder="Escribe aquí...">
-                </div>
-            `).join('');
-        }
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100"> 
+                            <h3 class="text-sm font-bold text-stone-400 tracking-widest uppercase mb-6">Bienestar</h3> 
+                             
+                            <div class="mb-4"> 
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg">🌙</span> <span class="text-xs font-bold text-stone-500">SUEÑO (Horas)</span></div> 
+                                <div id="wellness-sleep" class="flex gap-2 flex-wrap">${generateIcons('sleep', 8, '1HR', data.wellness.sleep, 'text-indigo-400')}</div> 
+                            </div> 
+                             
+                            <div class="mb-4"> 
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg">💧</span> <span class="text-xs font-bold text-stone-500">HIDRATACIÓN (Vasos)</span></div> 
+                                <div id="wellness-water" class="flex gap-2 flex-wrap">${generateIcons('water', 8, '250mL', data.wellness.water, 'text-blue-400')}</div> 
+                            </div> 
 
-        function renderPrayerChecks(checked) {
-            const opts = ["Meditación de la palabra", "Contemplación en el santísimo", "Contemplación en la naturaleza", "Lectura espiritual", "Oración de repetición"];
-            return opts.map(opt => `
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" class="custom-checkbox" ${checked.includes(opt) ? 'checked' : ''} onchange="togglePrayerCheck('${opt}')">
-                    <span>${opt}</span>
-                </label>
-            `).join('');
-        }
+                            <div class="mb-4"> 
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg">🦶</span> <span class="text-xs font-bold text-stone-500">MOVILIDAD (Bloques 20m)</span></div> 
+                                <div id="wellness-mobility" class="flex gap-4">${generateIcons('mobility', 3, '20min', data.wellness.mobility, 'text-orange-400')}</div> 
+                            </div> 
 
-        // --- LOGICA DE BIENESTAR (SCORECARD) ---
-        function renderWellnessGlobal(container) {
-            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-'));
-            let totals = { sleep: 0, water: 0, mobility: 0, nature: 0 };
-            let count = allKeys.length || 1;
-            const max = { sleep: 8, water: 8, mobility: 3, nature: 3 };
+                            <div> 
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg">🌿</span> <span class="text-xs font-bold text-stone-500">NATURALEZA (Bloques 10m)</span></div> 
+                                <div id="wellness-nature" class="flex gap-4">${generateIcons('nature', 3, '10min', data.wellness.nature, 'text-green-500')}</div> 
+                            </div> 
+                        </div> 
+                    </div> 
 
-            allKeys.forEach(k => {
-                const d = JSON.parse(localStorage.getItem(k));
-                if(d.wellness) {
-                    totals.sleep += d.wellness.sleep;
-                    totals.water += d.wellness.water;
-                    totals.mobility += d.wellness.mobility;
-                    totals.nature += d.wellness.nature;
-                }
-            });
+                    <div class="space-y-6"> 
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100"> 
+                            <h3 class="text-sm font-bold text-stone-400 tracking-widest uppercase mb-4">Examen de Conciencia</h3> 
+                            ${renderExamenInputs(data.examen)} 
+                        </div> 
 
-            const scores = {
-                sleep: Math.round((totals.sleep / (count * max.sleep)) * 100) || 0,
-                water: Math.round((totals.water / (count * max.water)) * 100) || 0,
-                mobility: Math.round((totals.mobility / (count * max.mobility)) * 100) || 0,
-                nature: Math.round((totals.nature / (count * max.nature)) * 100) || 0
-            };
+                        <div class="bg-stone-800 p-6 rounded-3xl shadow-sm border border-stone-700 text-stone-200"> 
+                            <h3 class="text-sm font-bold text-stone-400 tracking-widest uppercase mb-4">Vida de Oración</h3> 
+                            <p class="text-xs leading-relaxed text-stone-400 mb-6 italic">"La oración es la conversación que sostenemos con Dios todos los días: en medio de actividades, triunfos y caídas. Una unión real, personal y constante."</p> 
+                             
+                            <p class="font-bold text-sm mb-3">¿Cómo escuché y hablé con Dios hoy?</p> 
+                            <div class="grid grid-cols-1 gap-2 text-sm text-stone-300 mb-6"> 
+                                ${renderPrayerChecklist(data.prayer.checks)} 
+                            </div> 
 
-            container.innerHTML = `
-                <h2 class="text-4xl text-stone-800 mb-6 italic">Mi Bienestar 🌿</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    ${renderScoreCard('Sueño', scores.sleep, '🌙', "Prioriza tu descanso esta semana.")}
-                    ${renderScoreCard('Hidratación', scores.water, '💧', "Lleva tu termo de agua contigo.")}
-                    ${renderScoreCard('Movilidad', scores.mobility, '🦶', "Camina 10 min cada 4 horas.")}
-                    ${renderScoreCard('Naturaleza', scores.nature, '🌿', "Admira conscientemente la creación.")}
-                </div>
-            `;
-        }
+                            <p class="font-bold text-sm mb-2">¿Qué me dijo Dios hoy?</p> 
+                            <textarea oninput="updatePrayerMsg(this.value)" class="w-full h-24 bg-stone-700/50 rounded-xl p-3 text-stone-200 text-sm" placeholder="Guárdalo en el corazón...">${data.prayer.message}</textarea> 
+                        </div> 
+                    </div> 
+                </div> 
+            `; 
+        } 
 
-        function renderScoreCard(title, score, icon, feedback) {
-            return `
-                <div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-xs font-bold text-stone-400 uppercase">${icon} ${title}</span>
-                        <span class="text-xl font-bold">${score}%</span>
-                    </div>
-                    <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden mb-4">
-                        <div class="bg-stone-800 h-full" style="width: ${score}%"></div>
-                    </div>
-                    <p class="text-[10px] italic text-stone-500">${score < 60 ? feedback : '¡Vas muy bien! Mantén el ritmo.'}</p>
-                </div>
-            `;
-        }
+        function renderLucesView(container) { 
+            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-')).sort().reverse(); 
+            let html = `<h2 class="text-4xl text-stone-800 mb-2">Mis Luces ✨</h2> 
+                        <p class="text-stone-400 mb-8">Pequeños destellos de Dios en mi vida.</p> 
+                        <div class="columns-1 md:columns-2 gap-6 space-y-6">`; 
+             
+            if (allKeys.length === 0) html += `<p class="italic text-stone-400">Aún no hay luces registradas.</p>`; 
 
-        // --- GALERÍAS E HISTORIAL ---
-        function renderLucesGallery(container) {
-            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-')).sort().reverse();
-            container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Mis Luces ✨</h2><div class="columns-1 md:columns-2 gap-4" id="luces-grid"></div>`;
-            const grid = document.getElementById('luces-grid');
-            allKeys.forEach(k => {
-                const d = JSON.parse(localStorage.getItem(k));
-                if(d.luces) grid.innerHTML += `<div class="bg-[#fffbf0] p-6 rounded-3xl border border-yellow-100 italic mb-4 text-sm text-stone-700">"${d.luces}" <span class="block text-[8px] mt-2 font-bold opacity-30 uppercase">${k.replace('day-', '')}</span></div>`;
-            });
-        }
+            allKeys.forEach(key => { 
+                const data = JSON.parse(localStorage.getItem(key)); 
+                if (data.luces && data.luces.length > 0 && data.luces[0] !== "") { 
+                    const dateParts = key.replace('day-', '').split('-'); 
+                    const dateDisplay = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`; 
+                     
+                    html += ` 
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-yellow-100 break-inside-avoid"> 
+                            <div class="text-[10px] font-bold text-yellow-600 mb-2">${dateDisplay}</div> 
+                            <p class="text-stone-600 italic font-serif text-lg leading-relaxed">"${data.luces.join(' ')}"</p> 
+                        </div> 
+                    `; 
+                } 
+            }); 
+            html += `</div>`; 
+            container.innerHTML = html; 
+        } 
 
-        function renderSpiritualDiary(container) {
-            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-')).sort().reverse();
-            container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Diario Espiritual 🙏</h2><div class="space-y-4"></div>`;
-            const list = container.querySelector('div');
-            allKeys.forEach(k => {
-                const d = JSON.parse(localStorage.getItem(k));
-                if(d.prayer.message) list.innerHTML += `<div class="bg-white p-6 rounded-3xl border border-stone-100 shadow-sm"><p class="text-[9px] font-bold text-stone-300 uppercase mb-2">${k.replace('day-', '')}</p><p class="text-sm text-stone-700 italic">"Lo que Dios me dijo: ${d.prayer.message}"</p></div>`;
-            });
-        }
+        function renderPrayerGlobalView(container) { 
+             const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-')).sort().reverse(); 
+             let html = `<h2 class="text-4xl text-stone-800 mb-2">Diario Espiritual 🙏</h2> 
+                         <p class="text-stone-400 mb-8">Mi historia de salvación personal.</p> 
+                         <div class="space-y-6 max-w-3xl">`; 
 
-        // --- VISTA NAZARETH (De V1) ---
-        function renderNazarethView(container) {
-            const data = getDayData(selectedDate).nazareth;
-            container.innerHTML = `
-                <div class="max-w-2xl mx-auto space-y-8">
-                    <div class="text-center space-y-4">
-                        <h2 class="text-4xl text-stone-800 italic">Mi Nazareth</h2>
-                        <p class="text-[11px] text-stone-500 uppercase tracking-widest px-8 leading-relaxed italic">“Lavar un plato no porque ames lavarlo, sino porque amas a la persona que lo usará después.”</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-stone-100 space-y-6">
-                        <div>
-                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-2">Hogar</h3>
-                            <textarea oninput="updateNazareth('hogar', this.value)" class="bg-stone-50/50 p-4 rounded-2xl h-24 text-sm">${data.hogar}</textarea>
-                            <input oninput="updateNazareth('ofreciendoHogar', this.value)" type="text" class="mt-2 italic text-xs text-stone-400 px-2" placeholder="¿A quién estoy amando?" value="${data.ofreciendoHogar}">
-                        </div>
-                        <div>
-                            <h3 class="text-[10px] font-bold text-stone-400 uppercase mb-2">Trabajo</h3>
-                            <textarea oninput="updateNazareth('trabajo', this.value)" class="bg-stone-50/50 p-4 rounded-2xl h-24 text-sm">${data.trabajo}</textarea>
-                            <input oninput="updateNazareth('ofreciendoTrabajo', this.value)" type="text" class="mt-2 italic text-xs text-stone-400 px-2" placeholder="¿Por quién lo ofrezco?" value="${data.ofreciendoTrabajo}">
-                        </div>
-                    </div>
-                </div>`;
-        }
+             allKeys.forEach(key => { 
+                const data = JSON.parse(localStorage.getItem(key)); 
+                if (data.prayer && data.prayer.message) { 
+                    const dateParts = key.replace('day-', '').split('-'); 
+                    const dateDisplay = `${dateParts[2]} ${months[parseInt(dateParts[1])-1]} ${dateParts[0]}`; 
+                     
+                    html += ` 
+                        <div class="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 relative"> 
+                            <div class="absolute top-6 right-8 text-xs font-bold text-stone-300 uppercase">${dateDisplay}</div> 
+                            <h4 class="font-serif text-xl text-stone-800 mb-4">Lo que Dios me dijo:</h4> 
+                            <p class="text-stone-600 leading-relaxed">${data.prayer.message}</p> 
+                            ${data.prayer.checks.length > 0 ? `<div class="mt-4 pt-4 border-t border-stone-100 text-xs text-stone-400">Medios: ${data.prayer.checks.join(', ')}</div>` : ''} 
+                        </div> 
+                    `; 
+                } 
+             }); 
+             container.innerHTML = html; 
+        } 
 
-        // --- FUNCIONES DE ACTUALIZACIÓN ---
-        window.updateField = (f, v) => { const d = getDayData(selectedDate); d[f] = v; saveDayData(selectedDate, d); };
-        window.updateExamen = (i, v) => { const d = getDayData(selectedDate); d.examen[i] = v; saveDayData(selectedDate, d); };
-        window.updateWellness = (type, val) => { const d = getDayData(selectedDate); d.wellness[type] = (d.wellness[type] === val ? 0 : val); saveDayData(selectedDate, d); renderDayView(document.getElementById('view-container')); };
-        window.togglePrayerCheck = (opt) => { const d = getDayData(selectedDate); const idx = d.prayer.checks.indexOf(opt); if(idx > -1) d.prayer.checks.splice(idx, 1); else d.prayer.checks.push(opt); saveDayData(selectedDate, d); };
-        window.updatePrayerMsg = (v) => { const d = getDayData(selectedDate); d.prayer.message = v; saveDayData(selectedDate, d); };
-        window.updateNazareth = (f, v) => { const d = getDayData(selectedDate); d.nazareth[f] = v; saveDayData(selectedDate, d); };
-        window.changeMonth = (o) => { viewDate.setMonth(viewDate.getMonth() + o); showTab('mes'); };
-        window.selectDate = (y, m, d) => { selectedDate = new Date(y, m, d); showTab('dia'); };
+        function renderWellnessGlobalView(container) { 
+            const allKeys = Object.keys(localStorage).filter(k => k.startsWith('day-')); 
+            let totalDays = 0; 
+            let totals = { sleep: 0, water: 0, mobility: 0, nature: 0 }; 
+            const maxPoints = { sleep: 8, water: 8, mobility: 3, nature: 3 }; 
 
-        function renderPendientesView(container) {
-            container.innerHTML = `<h2 class="text-4xl text-stone-800 mb-8 italic">Todos los Pendientes</h2><div class="space-y-4" id="todo-list"></div>`;
-            const list = document.getElementById('todo-list');
-            Object.keys(localStorage).filter(k => k.startsWith('day-')).forEach(k => {
-                const d = JSON.parse(localStorage.getItem(k));
-                if (d.tasks) list.innerHTML += `<div class="bg-white p-4 rounded-2xl border border-stone-100"><p class="text-[9px] font-bold text-stone-300 mb-2 uppercase">${k.replace('day-', '')}</p><p class="text-xs text-stone-600 whitespace-pre-wrap">${d.tasks}</p></div>`;
-            });
-        }
+            allKeys.forEach(key => { 
+                const data = JSON.parse(localStorage.getItem(key)); 
+                if (data.wellness) { 
+                    if(data.wellness.sleep > 0 || data.wellness.water > 0 || data.wellness.mobility > 0 || data.wellness.nature > 0) { 
+                        totalDays++; 
+                        totals.sleep += (data.wellness.sleep || 0); 
+                        totals.water += (data.wellness.water || 0); 
+                        totals.mobility += (data.wellness.mobility || 0); 
+                        totals.nature += (data.wellness.nature || 0); 
+                    } 
+                } 
+            }); 
 
-        showTab('mes');
-    </script>
-</body>
+            if (totalDays === 0) totalDays = 1; 
+
+            const scores = { 
+                sleep: Math.round((totals.sleep / (totalDays * maxPoints.sleep)) * 100), 
+                water: Math.round((totals.water / (totalDays * maxPoints.water)) * 100), 
+                mobility: Math.round((totals.mobility / (totalDays * maxPoints.mobility)) * 100), 
+                nature: Math.round((totals.nature / (totalDays * maxPoints.nature)) * 100) 
+            }; 
+
+            const introText = "Estamos llamados a vivir una armonía de amor propio: a cuidarnos con prudencia, sabiendo que Dios nos asiste y nos acompaña incluso en lo más humano y corporal."; 
+
+            container.innerHTML = ` 
+                <div class="max-w-4xl mx-auto"> 
+                    <h2 class="text-4xl text-stone-800 mb-6">Mi Bienestar 🌿</h2> 
+                    <p class="text-lg text-stone-500 italic font-serif mb-10 leading-relaxed bg-white p-6 rounded-2xl border border-stone-100 shadow-sm"> 
+                        "${introText}" 
+                    </p> 
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10"> 
+                        ${renderScoreCard('Sueño', scores.sleep, '🌙', "Quizás esta semana podrías irte a dormir más temprano, prioriza tu descanso. ¡Ánimo!")} 
+                        ${renderScoreCard('Hidratación', scores.water, '💧', "Te reto a llevarte tu termo de agua a todos lados durante esta semana.")} 
+                        ${renderScoreCard('Movilidad', scores.mobility, '🦶', "Qué te parece si esta semana cada 4 horas te propones caminar 10 minutos, aunque sea dentro de un edificio.")} 
+                        ${renderScoreCard('Naturaleza', scores.nature, '🌿', "Estar en contacto con la naturaleza también es un tema de atención. ¿Qué te parece si está semana admiras conscientemente la creación que te rodea?")} 
+                    </div> 
+                </div> 
+            `; 
+        } 
+
+        function renderScoreCard(title, score, icon, feedback) { 
+            let color = score > 70 ? 'bg-green-100 text-green-700' : (score > 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-50 text-red-700'); 
+            let showFeedback = score < 60;  
+
+            return ` 
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100"> 
+                    <div class="flex justify-between items-center mb-4"> 
+                        <div class="flex items-center gap-3"> 
+                            <span class="text-2xl">${icon}</span> 
+                            <h3 class="font-bold text-stone-600 uppercase tracking-widest text-sm">${title}</h3> 
+                        </div> 
+                        <span class="text-2xl font-bold text-stone-800">${score}%</span> 
+                    </div> 
+                     
+                    <div class="w-full bg-stone-100 rounded-full h-2 mb-4 overflow-hidden"> 
+                        <div class="h-full bg-stone-800" style="width: ${score}%"></div> 
+                    </div> 
+
+                    ${showFeedback ? ` 
+                        <div class="mt-4 p-4 ${color} rounded-xl text-sm italic leading-relaxed"> 
+                            ${feedback} 
+                        </div> 
+                    ` : `<div class="mt-4 text-xs text-stone-400 text-center">¡Vas muy bien! Mantén el ritmo.</div>`} 
+                </div> 
+            `; 
+        } 
+
+        function renderNotesView(container) { 
+             const saved = localStorage.getItem('global-notes') || ""; 
+             // CAMBIO AQUÍ: Título actualizado 
+             container.innerHTML = ` 
+                <h2 class="text-4xl text-stone-800 mb-6">Notas generales 📖</h2> 
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 min-h-[500px]"> 
+                    <textarea oninput="localStorage.setItem('global-notes', this.value)"  
+                        class="w-full h-full text-lg text-stone-600 leading-relaxed" 
+                        placeholder="Escribe aquí ideas, proyectos o pensamientos que no dependan de una fecha...">${saved}</textarea> 
+                </div> 
+            `; 
+        } 
+
+        // --- COMPONENTES --- 
+
+        function generateIcons(type, max, label, currentVal, activeColorClass) { 
+            let html = ''; 
+            const iconsMap = { sleep: '🌙', water: '💧', mobility: '🦶', nature: '🌿' }; 
+            const iconChar = iconsMap[type]; 
+
+            const bgActive = activeColorClass.replace('text', 'bg').replace('400', '100').replace('500', '100'); 
+             
+            for(let i=1; i<=max; i++) { 
+                const isActive = i <= currentVal; 
+                const bgClass = isActive ? bgActive : 'bg-stone-50'; 
+                const textClass = isActive ? activeColorClass : 'text-stone-300'; 
+                const labelClass = isActive ? 'text-stone-600' : 'text-stone-300'; 
+                const opacity = isActive ? 'opacity-100 filter-none' : 'opacity-40 grayscale'; 
+
+                html += ` 
+                    <div onclick="updateWellness('${type}', ${i})" class="wellness-icon group ${opacity}"> 
+                         <div class="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center ${bgClass}"> 
+                            <span class="text-lg ${textClass}">${iconChar}</span> 
+                         </div> 
+                         <span class="wellness-label ${labelClass}">${label}</span> 
+                    </div> 
+                `; 
+            } 
+            return html; 
+        } 
+
+        function renderExamenInputs(values) { 
+            const questions = [ 
+                "¿Qué es lo que más agradezco de hoy?", 
+                "¿En qué lugares, situaciones o personas vi a Dios el día de hoy?", 
+                "¿Qué emoción predominó hoy? (Háblalo con Dios)", 
+                "¿Desde qué lugar interior me gustaría vivir mañana?", 
+                "¿En qué momentos me quedé corta en amor? (Pide un corazón como el Suyo)" 
+            ]; 
+             
+            return questions.map((q, idx) => ` 
+                <div class="mb-4"> 
+                    <label class="block text-xs font-bold text-stone-500 mb-2 leading-tight">${q}</label> 
+                    <textarea oninput="updateExamen(${idx}, this.value)" class="w-full h-16 bg-stone-50 rounded-xl p-3 text-sm text-stone-700 focus:bg-white border border-transparent focus:border-stone-200" placeholder="Escribe aquí...">${values[idx] || ''}</textarea> 
+                </div> 
+            `).join(''); 
+        } 
+
+        function renderPrayerChecklist(checkedItems) { 
+            const options = ["Meditación de la palabra", "Contemplación en el santísimo", "Contemplación en la naturaleza", "Conversación en el coche", "Oración de repetición", "Lectura espiritual", "Otro"]; 
+             
+            return options.map(opt => { 
+                const isChecked = checkedItems.includes(opt); 
+                return ` 
+                    <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors"> 
+                        <input type="checkbox" class="custom-checkbox w-4 h-4 bg-transparent border-stone-500 rounded"  
+                            ${isChecked ? 'checked' : ''}  
+                            onchange="togglePrayerCheck('${opt}')"> 
+                        <span>${opt}</span> 
+                    </label> 
+                `; 
+            }).join(''); 
+        } 
+
+        // --- ACTUALIZACIÓN OPTIMIZADA --- 
+
+        function updateWellness(type, val) { 
+            const data = getDayData(selectedDate); 
+            const newValue = (data.wellness[type] === val) ? 0 : val; 
+            data.wellness[type] = newValue; 
+            saveDayData(selectedDate, data); 
+
+            const container = document.getElementById(`wellness-${type}`); 
+            const icons = container.children; 
+             
+            const colorMap = { 
+                'sleep': { text: 'text-indigo-400', bg: 'bg-indigo-100' }, 
+                'water': { text: 'text-blue-400', bg: 'bg-blue-100' }, 
+                'mobility': { text: 'text-orange-400', bg: 'bg-orange-100' }, 
+                'nature': { text: 'text-green-500', bg: 'bg-green-100' } 
+            }; 
+            const styles = colorMap[type]; 
+
+            for (let i = 0; i < icons.length; i++) { 
+                const iconDiv = icons[i]; 
+                const circle = iconDiv.querySelector('div'); 
+                const iconSpan = circle.querySelector('span'); 
+                const labelSpan = iconDiv.querySelector('.wellness-label'); 
+                const indexVal = i + 1; 
+
+                if (indexVal <= newValue) { 
+                    iconDiv.classList.remove('opacity-40', 'grayscale'); 
+                    iconDiv.classList.add('opacity-100', 'filter-none'); 
+                    circle.className = `w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center ${styles.bg}`; 
+                    iconSpan.className = `text-lg ${styles.text}`; 
+                    labelSpan.className = "wellness-label text-stone-600"; 
+                } else { 
+                    iconDiv.classList.add('opacity-40', 'grayscale'); 
+                    iconDiv.classList.remove('opacity-100', 'filter-none'); 
+                    circle.className = "w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center bg-stone-50"; 
+                    iconSpan.className = "text-lg text-stone-300"; 
+                    labelSpan.className = "wellness-label text-stone-300"; 
+                } 
+            } 
+        } 
+
+        function updateField(field, value) { 
+            const data = getDayData(selectedDate); 
+            data[field] = value; 
+            saveDayData(selectedDate, data); 
+        } 
+
+        function updateLuces(value) { 
+            const data = getDayData(selectedDate); 
+            data.luces = [value];  
+            saveDayData(selectedDate, data); 
+        } 
+
+        function updateExamen(idx, value) { 
+            const data = getDayData(selectedDate); 
+            data.examen[idx] = value; 
+            saveDayData(selectedDate, data); 
+        } 
+
+        function togglePrayerCheck(option) { 
+            const data = getDayData(selectedDate); 
+            const idx = data.prayer.checks.indexOf(option); 
+            if (idx > -1) data.prayer.checks.splice(idx, 1); 
+            else data.prayer.checks.push(option); 
+            saveDayData(selectedDate, data); 
+        } 
+
+        function updatePrayerMsg(val) { 
+            const data = getDayData(selectedDate); 
+            data.prayer.message = val; 
+            saveDayData(selectedDate, data); 
+        } 
+
+        // --- CALENDARIO --- 
+        function generateCalendarHtml() { 
+            let html = ''; 
+            const year = viewDate.getFullYear(); 
+            const month = viewDate.getMonth(); 
+            const firstDayIndex = new Date(year, month, 1).getDay(); 
+            const lastDay = new Date(year, month + 1, 0).getDate(); 
+            const prevLastDay = new Date(year, month, 0).getDate(); 
+
+            for (let x = firstDayIndex; x > 0; x--) { 
+                html += `<div class="day-card text-stone-200 bg-stone-50/50">${prevLastDay - x + 1}</div>`; 
+            } 
+
+            for (let i = 1; i <= lastDay; i++) { 
+                const d = new Date(year, month, i); 
+                const key = `day-${d.toISOString().split('T')[0]}`; 
+                const data = localStorage.getItem(key); 
+                let hasContent = false; 
+                if(data) { 
+                    const p = JSON.parse(data); 
+                    if(p.tasks || (p.luces && p.luces.length && p.luces[0]) || p.prayer.message) hasContent = true; 
+                } 
+
+                const isToday = new Date().toDateString() === d.toDateString(); 
+                const isSelected = selectedDate.toDateString() === d.toDateString(); 
+
+                html += ` 
+                    <div onclick="selectDate(${year}, ${month}, ${i})"  
+                         class="day-card text-stone-500 font-medium ${hasContent ? 'has-content' : ''} ${isSelected ? 'bg-stone-100 ring-2 ring-stone-200' : ''}"> 
+                        <span class="${isToday ? 'today' : ''}">${i}</span> 
+                    </div>`; 
+            } 
+            return html; 
+        } 
+
+        function changeMonth(offset) { 
+            viewDate.setMonth(viewDate.getMonth() + offset); 
+            showTab('mes'); 
+        } 
+
+        function selectDate(y, m, d) { 
+            selectedDate = new Date(y, m, d); 
+            showTab('dia'); 
+        } 
+
+        showTab('mes'); 
+    </script> 
+</body> 
 </html>
